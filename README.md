@@ -1,18 +1,61 @@
 # Basin Domains Core Contracts
 
-## Installation
+## Set up .env
+
+```bash
+cp .env.sample .env
+```
+add MNEMONIC and BASESCAN_API_KEY
+
+## Install Dependencies
 
 ```bash
 npm install
 ```
 
+## Compile Typechain Artifacts
+
+```bash
+npm run build
+```
+
 ## Run Tests
 
 ```bash
-npx hardhat test
+npm run test
 ```
 
-## Add Base Sepolia
+## Lint both Solidity and Typescript Files
+
+```bash
+npm run lint
+```
+
+## Format both Solidity and Typescript Files
+
+```bash
+npm run fmt
+```
+
+## Deploy Contracts to Hardhat
+
+Deploy to in-process instance of Hardhat Network, results will be lost.
+```bash
+npm run deploy hardhat
+```
+
+## Deploy Contracts to Local node
+Start local network
+```bash
+npx hardhat node
+```
+
+Start a new terminal and execute:
+```bash
+npm run deploy localhost
+```
+
+## Add Base Sepolia to Metamask
 
 - Name	Sepolia
 - Network Name	Base Sepolia
@@ -22,16 +65,15 @@ npx hardhat test
 - Block Explorer	https://sepolia-explorer.base.org
 
 ## TODO
-- Create `.env`
 - Write Hardhat tests
 - Write deployment scripts
 - Deploy to Localhost
 - Deploy to Base Sepolia
-- Verify Sepolia contracts
+- Verify Sepolia contracts https://hardhat.org/ignition/docs/guides/verify
 - Point frontend to Base Sepolia for testing
 - Deploy to Zora Sepolia Testnet? https://testnet.zora.co/
 - Deploy to Base Mainnet
-- Verify mainnet contracts
+- Verify mainnet contracts https://hardhat.org/ignition/docs/guides/verify
 - Point Frontend to Base Mainnet
 
 ## References
@@ -42,7 +84,6 @@ npx hardhat test
 ---
 # Original README below
 
-
 # Punk Domains core contracts
 
 Punk Domains allow anyone to either create a top-level domain (TLD) such as `.wagmi` or a normal domain such as `techie.wagmi`. In addition, users can add some other data to their domain:
@@ -50,97 +91,6 @@ Punk Domains allow anyone to either create a top-level domain (TLD) such as `.wa
 - description
 - redirect URL (useful together with the Punk Domains browser extension)
 - profile picture (an address and token ID of an NFT)
-
-See instructions below to run the code on localhost and for blockchain deployment.
-
-### .env
-
-Create a `.env` file with the following keys:
-
-```bash
-ALCHEMY_API_KEY_MUMBAI=enter-key-here
-ALCHEMY_API_KEY_OPTIMISM=enter-key-here
-ALCHEMY_API_KEY_RINKEBY=enter-key-here
-ALCHEMY_API_KEY_ROPSTEN=enter-key-here
-DEPLOYER_PRIVATE_KEY=enter-key-here
-ETHERSCAN_API_KEY=enter-key-here
-POLYGONSCAN_API_KEY=enter-key-here
-OPTIMISTIC_ETHERSCAN_API_KEY=enter-key-here
-ARBISCAN_API_KEY=enter-key-here
-```
-
-### Compile
-
-Make sure you use Node.js v19.
-
-```bash
-npx hardhat compile
-```
-
-### Test
-
-```bash
-npx hardhat test
-```
-
-Run tests in a specific folder:
-
-```bash
-npx hardhat test test/factories/flexi/*test.js
-```
-
-Run a specific test:
-
-```bash
-npx hardhat test test/factories/flexi/TLD.owner.test.js
-```
-
-### Run on localhost
-
-Start a localhost node:
-
-```bash
-npx hardhat node
-```
-
-Make sure to add one of the private keys presented as deployer key in `.env` file.
-
-In a separate terminal tab then run the following command:
-
-```bash
-npx hardhat run scripts/deploy.js --network localhost
-```
-
-### Deploy to testnets
-
-```bash
-npx hardhat run scripts/deploy.js --network polygonMumbai
-```
-
-```bash
-npx hardhat run scripts/deploy.js --network ropsten
-```
-
-### Verify contract on Etherscan/Polygonscan:
-
-Make sure to enter correct network names ([see here](https://hardhat.org/plugins/nomiclabs-hardhat-etherscan.html#multiple-api-keys-and-alternative-block-explorers) and [here](https://gist.github.com/tempe-techie/95a3ad4e81b46c895928a0524fc2b7ac)):
-
-```bash
-etherscan: {
-  apiKey: {
-    polygonMumbai: process.env.POLYGONSCAN_API_KEY,
-    ropsten: process.env.ETHERSCAN_API_KEY
-  }
-},
-```
-
-Then run this command:
-
-```bash
-npx hardhat verify --network mumbai <contract-address> "argument"
-```
-
-Also make sure you have the `@nomiclabs/hardhat-etherscan` library `3.1.0` or above.
 
 ### Verify TLD contracts
 

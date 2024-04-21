@@ -114,3 +114,5 @@ dist
 .tern-port
 
 typechain-types
+
+ignition/deployments/chain-1337/

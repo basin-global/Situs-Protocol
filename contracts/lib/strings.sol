@@ -15,7 +15,7 @@ library strings {
 
     function memcpy(uint dest, uint src, uint _len) private pure {
         // Copy word-length chunks while possible
-        for(; _len >= 32; _len -= 32) {
+        for (; _len >= 32; _len -= 32) {
             assembly {
                 mstore(dest, mload(src))
             }
@@ -55,8 +55,7 @@ library strings {
      */
     function len(bytes32 self) internal pure returns (uint) {
         uint ret;
-        if (self == 0)
-            return 0;
+        if (self == 0) return 0;
         if (uint(self) & type(uint128).max == 0) {
             ret += 16;
             self = bytes32(uint(self) / 0x100000000000000000000000000000000);
@@ -114,7 +113,9 @@ library strings {
     function toString(slice memory self) internal pure returns (string memory) {
         string memory ret = new string(self._len);
         uint retptr;
-        assembly { retptr := add(ret, 32) }
+        assembly {
+            retptr := add(ret, 32)
+        }
 
         memcpy(retptr, self._ptr, self._len);
         return ret;
@@ -134,16 +135,18 @@ library strings {
         uint end = ptr + self._len;
         for (l = 0; ptr < end; l++) {
             uint8 b;
-            assembly { b := and(mload(ptr), 0xFF) }
+            assembly {
+                b := and(mload(ptr), 0xFF)
+            }
             if (b < 0x80) {
                 ptr += 1;
-            } else if(b < 0xE0) {
+            } else if (b < 0xE0) {
                 ptr += 2;
-            } else if(b < 0xF0) {
+            } else if (b < 0xF0) {
                 ptr += 3;
-            } else if(b < 0xF8) {
+            } else if (b < 0xF8) {
                 ptr += 4;
-            } else if(b < 0xFC) {
+            } else if (b < 0xFC) {
                 ptr += 5;
             } else {
                 ptr += 6;
@@ -171,8 +174,7 @@ library strings {
      */
     function compare(slice memory self, slice memory other) internal pure returns (int) {
         uint shortest = self._len;
-        if (other._len < self._len)
-            shortest = other._len;
+        if (other._len < self._len) shortest = other._len;
 
         uint selfptr = self._ptr;
         uint otherptr = other._ptr;
@@ -186,13 +188,12 @@ library strings {
             if (a != b) {
                 // Mask out irrelevant bytes and check again
                 uint mask = type(uint).max; // 0xffff...
-                if(shortest < 32) {
-                  mask = ~(2 ** (8 * (32 - shortest + idx)) - 1);
+                if (shortest < 32) {
+                    mask = ~(2 ** (8 * (32 - shortest + idx)) - 1);
                 }
                 unchecked {
                     uint diff = (a & mask) - (b & mask);
-                    if (diff != 0)
-                        return int(diff);
+                    if (diff != 0) return int(diff);
                 }
             }
             selfptr += 32;
@@ -229,12 +230,14 @@ library strings {
         uint l;
         uint b;
         // Load the first byte of the rune into the LSBs of b
-        assembly { b := and(mload(sub(mload(add(self, 32)), 31)), 0xFF) }
+        assembly {
+            b := and(mload(sub(mload(add(self, 32)), 31)), 0xFF)
+        }
         if (b < 0x80) {
             l = 1;
-        } else if(b < 0xE0) {
+        } else if (b < 0xE0) {
             l = 2;
-        } else if(b < 0xF0) {
+        } else if (b < 0xF0) {
             l = 3;
         } else {
             l = 4;
@@ -279,15 +282,17 @@ library strings {
         uint divisor = 2 ** 248;
 
         // Load the rune into the MSBs of b
-        assembly { word:= mload(mload(add(self, 32))) }
+        assembly {
+            word := mload(mload(add(self, 32)))
+        }
         uint b = word / divisor;
         if (b < 0x80) {
             ret = b;
             length = 1;
-        } else if(b < 0xE0) {
+        } else if (b < 0xE0) {
             ret = b & 0x1F;
             length = 2;
-        } else if(b < 0xF0) {
+        } else if (b < 0xF0) {
             ret = b & 0x0F;
             length = 3;
         } else {
@@ -449,29 +454,37 @@ library strings {
                 }
 
                 bytes32 needledata;
-                assembly { needledata := and(mload(needleptr), mask) }
+                assembly {
+                    needledata := and(mload(needleptr), mask)
+                }
 
                 uint end = selfptr + selflen - needlelen;
                 bytes32 ptrdata;
-                assembly { ptrdata := and(mload(ptr), mask) }
+                assembly {
+                    ptrdata := and(mload(ptr), mask)
+                }
 
                 while (ptrdata != needledata) {
-                    if (ptr >= end)
-                        return selfptr + selflen;
+                    if (ptr >= end) return selfptr + selflen;
                     ptr++;
-                    assembly { ptrdata := and(mload(ptr), mask) }
+                    assembly {
+                        ptrdata := and(mload(ptr), mask)
+                    }
                 }
                 return ptr;
             } else {
                 // For long needles, use hashing
                 bytes32 hash;
-                assembly { hash := keccak256(needleptr, needlelen) }
+                assembly {
+                    hash := keccak256(needleptr, needlelen)
+                }
 
                 for (idx = 0; idx <= selflen - needlelen; idx++) {
                     bytes32 testHash;
-                    assembly { testHash := keccak256(ptr, needlelen) }
-                    if (hash == testHash)
-                        return ptr;
+                    assembly {
+                        testHash := keccak256(ptr, needlelen)
+                    }
+                    if (hash == testHash) return ptr;
                     ptr += 1;
                 }
             }
@@ -492,29 +505,37 @@ library strings {
                 }
 
                 bytes32 needledata;
-                assembly { needledata := and(mload(needleptr), mask) }
+                assembly {
+                    needledata := and(mload(needleptr), mask)
+                }
 
                 ptr = selfptr + selflen - needlelen;
                 bytes32 ptrdata;
-                assembly { ptrdata := and(mload(ptr), mask) }
+                assembly {
+                    ptrdata := and(mload(ptr), mask)
+                }
 
                 while (ptrdata != needledata) {
-                    if (ptr <= selfptr)
-                        return selfptr;
+                    if (ptr <= selfptr) return selfptr;
                     ptr--;
-                    assembly { ptrdata := and(mload(ptr), mask) }
+                    assembly {
+                        ptrdata := and(mload(ptr), mask)
+                    }
                 }
                 return ptr + needlelen;
             } else {
                 // For long needles, use hashing
                 bytes32 hash;
-                assembly { hash := keccak256(needleptr, needlelen) }
+                assembly {
+                    hash := keccak256(needleptr, needlelen)
+                }
                 ptr = selfptr + (selflen - needlelen);
                 while (ptr >= selfptr) {
                     bytes32 testHash;
-                    assembly { testHash := keccak256(ptr, needlelen) }
-                    if (hash == testHash)
-                        return ptr + needlelen;
+                    assembly {
+                        testHash := keccak256(ptr, needlelen)
+                    }
+                    if (hash == testHash) return ptr + needlelen;
                     ptr -= 1;
                 }
             }
@@ -658,7 +679,9 @@ library strings {
     function concat(slice memory self, slice memory other) internal pure returns (string memory) {
         string memory ret = new string(self._len + other._len);
         uint retptr;
-        assembly { retptr := add(ret, 32) }
+        assembly {
+            retptr := add(ret, 32)
+        }
         memcpy(retptr, self._ptr, self._len);
         memcpy(retptr + self._len, other._ptr, other._len);
         return ret;
@@ -673,18 +696,18 @@ library strings {
      *         joined with `self`.
      */
     function join(slice memory self, slice[] memory parts) internal pure returns (string memory) {
-        if (parts.length == 0)
-            return "";
+        if (parts.length == 0) return "";
 
         uint length = self._len * (parts.length - 1);
-        for(uint i = 0; i < parts.length; i++)
-            length += parts[i]._len;
+        for (uint i = 0; i < parts.length; i++) length += parts[i]._len;
 
         string memory ret = new string(length);
         uint retptr;
-        assembly { retptr := add(ret, 32) }
+        assembly {
+            retptr := add(ret, 32)
+        }
 
-        for(uint i = 0; i < parts.length; i++) {
+        for (uint i = 0; i < parts.length; i++) {
             memcpy(retptr, parts[i]._ptr, parts[i]._len);
             retptr += parts[i]._len;
             if (i < parts.length - 1) {
@@ -698,18 +721,15 @@ library strings {
 
     /**
      * Lower
-     * 
+     *
      * Converts all the values of a string to their corresponding lower case
      * value.
-     * 
+     *
      * @param _base When being used for a data type this is the extended object
      *              otherwise this is the string base to convert to lower case
-     * @return string 
+     * @return string
      */
-    function lower(string memory _base)
-        internal
-        pure
-        returns (string memory) {
+    function lower(string memory _base) internal pure returns (string memory) {
         bytes memory _baseBytes = bytes(_base);
         for (uint i = 0; i < _baseBytes.length; i++) {
             _baseBytes[i] = _lower(_baseBytes[i]);
@@ -719,19 +739,15 @@ library strings {
 
     /**
      * Lower
-     * 
+     *
      * Convert an alphabetic character to lower case and return the original
      * value when not alphabetic
-     * 
+     *
      * @param _b1 The byte to be converted to lower case
      * @return bytes1 The converted value if the passed value was alphabetic
      *                and in a upper case otherwise returns the original value
      */
-    function _lower(bytes1 _b1)
-        private
-        pure
-        returns (bytes1) {
-
+    function _lower(bytes1 _b1) private pure returns (bytes1) {
         if (_b1 >= 0x41 && _b1 <= 0x5A) {
             return bytes1(uint8(_b1) + 32);
         }

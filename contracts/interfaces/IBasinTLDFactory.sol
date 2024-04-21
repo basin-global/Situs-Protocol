@@ -2,17 +2,15 @@
 pragma solidity ^0.8.4;
 
 interface IBasinTLDFactory {
+    function getTldsArray() external view returns (string[] memory);
 
-  function getTldsArray() external view returns(string[] memory);
+    function tldNamesAddresses(string memory) external view returns (address);
 
-  function tldNamesAddresses(string memory) external view returns(address);
-
-  function createTld(
-    string memory _name,
-    string memory _symbol,
-    address _tldOwner,
-    uint256 _domainPrice,
-    bool _buyingEnabled
-  ) external payable returns(address);
-
+    function createTld(
+        string memory _name,
+        string memory _symbol,
+        address _tldOwner,
+        uint256 _domainPrice,
+        bool _buyingEnabled
+    ) external payable returns (address);
 }

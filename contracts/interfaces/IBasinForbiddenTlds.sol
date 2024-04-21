@@ -2,9 +2,7 @@
 pragma solidity ^0.8.4;
 
 interface IBasinForbiddenTlds {
+    function isTldForbidden(string memory _name) external view returns (bool);
 
-  function isTldForbidden(string memory _name) external view returns (bool);
-
-  function addForbiddenTld(string memory _name) external;
-
+    function addForbiddenTld(string memory _name) external;
 }
