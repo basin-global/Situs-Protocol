@@ -7,10 +7,10 @@ const BasinTLDModule = buildModule("BasinTLDModule", (m) => {
   const basinForbiddenTLDs = m.contract("BasinForbiddenTLDs");
   const basinResolverNonUpgradable = m.contract("BasinResolverNonUpgradable");
 
-  let tldPrice = "900000"; // default price in ETH
+  const tldPrice = "900000"; // default price in ETH
 
   const basinTLDFactory = m.contract("BasinTLDFactory", [
-    tldPrice,
+    tldPrice, // FIXME
     basinForbiddenTLDs,
     basinMetadata
   ]);
@@ -21,13 +21,29 @@ const BasinTLDModule = buildModule("BasinTLDModule", (m) => {
   const tldName = ".basin";
   const tldSymbol = ".BASIN";
 
-  m.call(basinTLDFactory, 'ownerCreateTld', [
+  // Use this for a standard TLD without a custom metadata contract
+  // m.call(basinTLDFactory, 'ownerCreateTld', [
+  //   tldName,
+  //   tldSymbol,
+  //   deployer,
+  //   0,
+  //   false // buying enabled
+  // ]);
+
+  // Use a custom metadata contract
+  const basinMetadata3 = m.contract("BasinMetadata3");
+  const tldRoyalty = "0"; // default price in ETH
+  const basinTLD = m.contract("BasinTLD", [
     tldName,
     tldSymbol,
     deployer,
-    0,
-    false // buying enabled
+    tldPrice, // FIXME
+    true,
+    tldRoyalty,
+    basinTLDFactory,
+    basinMetadata3
   ]);
+
 
   return { basinMetadata, basinForbiddenTLDs, basinResolverNonUpgradable, basinTLDFactory };
 });
