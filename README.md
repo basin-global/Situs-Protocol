@@ -6,6 +6,12 @@
 npm install
 ```
 
+## Run Tests
+
+```bash
+npx hardhat test
+```
+
 ## Add Base Sepolia
 
 - Name	Sepolia
