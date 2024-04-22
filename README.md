@@ -1,5 +1,28 @@
 # Basin Domains Core Contracts
 
+Contracts to create a top-level domain (TLD) such as `.basin`
+
+```mermaid
+sequenceDiagram
+    participant deployer as Deployer
+    participant basinMetadata as BasinMetadata
+    participant basinForbiddenTLDs as BasinForbiddenTLDs
+    participant basinResolverNonUpgradable as BasinResolverNonUpgradable
+    participant basinTLDFactory as BasinTLDFactory
+    participant basinMetadata3 as BasinMetadata3
+    participant basinTLD as BasinTLD
+
+    deployer ->>+ basinMetadata: Instantiate
+    deployer ->>+ basinForbiddenTLDs: Instantiate
+    deployer ->>+ basinResolverNonUpgradable: Instantiate
+    deployer ->>+ basinTLDFactory: Instantiate (with BasinForbiddenTLDs and BasinMetadata)
+    basinForbiddenTLDs ->>+ basinTLDFactory: addFactoryAddress
+    basinResolverNonUpgradable ->>+ basinTLDFactory: addFactoryAddress
+    deployer ->>+ basinTLDFactory: ownerCreateTld (non-custom metadata)
+    deployer ->>+ basinMetadata3: Instantiate
+    deployer ->>+ basinTLD: Instantiate (with BasinTLDFactory and BasinMetadata3)
+```
+
 ## Set up .env
 
 ```bash
