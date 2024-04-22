@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "../../interfaces/IBasinTLDFactory.sol";
-import "../../interfaces/IBasinTLD.sol";
-import "../../lib/strings.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IBasinTLDFactory} from "../../factories/interfaces/IBasinTLDFactory.sol";
+import {IBasinTLD} from "../../tlds/interfaces/IBasinTLD.sol";
+import {strings} from "../../lib/strings.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {IERC721Metadata} from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
 /// @title Basin Domains Resolver v2
 /// @author Tempe Techie

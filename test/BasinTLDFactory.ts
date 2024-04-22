@@ -10,9 +10,9 @@ describe("BasinTLDFactory", function () {
     async function deployBasinTLDFactoryFixture() {
         const [owner, otherAccount] = await hre.ethers.getSigners();
 
-        const BasinMetadata = await hre.ethers.getContractFactory("BasinMetadata");
-        const basinMetadata = await BasinMetadata.deploy();
-        const basinMetadataAddress = await basinMetadata.getAddress();
+        const BasinMetadataStore = await hre.ethers.getContractFactory("BasinMetadataStore");
+        const basinMetadataStore = await BasinMetadataStore.deploy();
+        const basinMetadataStoreAddress = await basinMetadataStore.getAddress();
 
         const BasinForbiddenTLDs = await hre.ethers.getContractFactory("BasinForbiddenTLDs");
         const basinForbiddenTLDs = await BasinForbiddenTLDs.deploy();
@@ -22,7 +22,7 @@ describe("BasinTLDFactory", function () {
         const basinResolverNonUpgradable = await BasinResolverNonUpgradable.deploy();
 
         const BasinTLDFactory = await hre.ethers.getContractFactory("BasinTLDFactory");
-        const basinTLDFactory = await BasinTLDFactory.deploy(tldPrice, basinForbiddenTLDsAddress, basinMetadataAddress);
+        const basinTLDFactory = await BasinTLDFactory.deploy(tldPrice, basinForbiddenTLDsAddress, basinMetadataStoreAddress);
         const basinTLDFactoryAddress = await basinTLDFactory.getAddress();
 
         await basinForbiddenTLDs.addFactoryAddress(basinTLDFactoryAddress);

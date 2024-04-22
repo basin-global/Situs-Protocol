@@ -3,7 +3,7 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 const BasinTLDModule = buildModule("BasinTLDModule", (m) => {
   const deployer = m.getAccount(0);
 
-  const basinMetadata = m.contract("BasinMetadata");
+  const basinMetadataStore = m.contract("BasinMetadataStore");
   const basinForbiddenTLDs = m.contract("BasinForbiddenTLDs");
   const basinResolverNonUpgradable = m.contract("BasinResolverNonUpgradable");
 
@@ -12,7 +12,7 @@ const BasinTLDModule = buildModule("BasinTLDModule", (m) => {
   const basinTLDFactory = m.contract("BasinTLDFactory", [
     tldPrice, // FIXME
     basinForbiddenTLDs,
-    basinMetadata
+    basinMetadataStore
   ]);
 
   m.call(basinForbiddenTLDs, 'addFactoryAddress', [basinTLDFactory]);
@@ -45,7 +45,7 @@ const BasinTLDModule = buildModule("BasinTLDModule", (m) => {
   ]);
 
 
-  return { basinMetadata, basinForbiddenTLDs, basinResolverNonUpgradable, basinTLDFactory };
+  return { basinMetadataStore, basinForbiddenTLDs, basinResolverNonUpgradable, basinTLDFactory };
 });
 
 export default BasinTLDModule;

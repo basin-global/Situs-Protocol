@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import "base64-sol/base64.sol";
-import { OwnableWithManagers } from "../access/OwnableWithManagers.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "../lib/strings.sol";
+import {Base64} from "base64-sol/base64.sol";
+import { OwnableWithManagers } from "../../access/OwnableWithManagers.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {strings} from "../../lib/strings.sol";
 
 /// @title .basin domain metadata contract
 /// @notice Contract that stores metadata for the .basin TLD
@@ -19,6 +19,7 @@ contract BasinMetadata3 is OwnableWithManagers {
 
         return string(
             abi.encodePacked("data:application/json;base64,", Base64.encode(bytes(abi.encodePacked(
+                /* solhint-disable quotes */ 
                 '{"name": "', fullDomainName, '", ',
                 '"description": "', description, '", ',
                 '"attributes": [',
@@ -26,6 +27,7 @@ contract BasinMetadata3 is OwnableWithManagers {
                 '], ',
                 '"animation_url": "', animationUrl, '", ',
                 '"image": "', _getImage(fullDomainName), '"}'))))
+                /* solhint-enable quotes */
         );
     }
 
@@ -35,6 +37,7 @@ contract BasinMetadata3 is OwnableWithManagers {
 
     function _getImage(string memory _fullDomainName) internal pure returns (string memory) {
         string memory svgBase64Encoded = Base64.encode(bytes(string(abi.encodePacked(
+            /* solhint-disable quotes */ 
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">',
                 '<defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">',
                 '<stop offset="0%" style="stop-color:black;stop-opacity:1" />',
@@ -43,6 +46,7 @@ contract BasinMetadata3 is OwnableWithManagers {
                 '<text x="50%" y="50%" dominant-baseline="middle" fill="white" text-anchor="middle" font-family="monospace" font-size="24px" font-weight="bold">',
                 _fullDomainName,'</text>',
             '</svg>'
+            /* solhint-enable quotes */
         ))));
 
         return string(abi.encodePacked("data:image/svg+xml;base64,", svgBase64Encoded));

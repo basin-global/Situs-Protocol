@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import "../../lib/strings.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "./BasinTLD.sol";
-import "../../interfaces/IBasinTLDFactory.sol";
-import "../../interfaces/IBasinForbiddenTlds.sol";
+import {strings} from "../lib/strings.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {BasinTLD} from "../tlds/BasinTLD.sol";
+import {IBasinTLDFactory} from "./interfaces/IBasinTLDFactory.sol";
+import {IBasinForbiddenTLDs} from "../registries/interfaces/IBasinForbiddenTLDs.sol";
 
 /// @title Basin Domains TLD Factory contract
 /// @author Tempe Techie
@@ -18,7 +18,7 @@ contract BasinTLDFactory is IBasinTLDFactory, Ownable, ReentrancyGuard {
     mapping(string => address) public override tldNamesAddresses; // a mapping of TLDs (string => TLDaddress)
 
     address public forbiddenTlds; // address of the contract that stores the list of forbidden TLDs
-    address public metadataAddress; // default BasinMetadata address
+    address public metadataAddress; // default BasinMetadataStore address
 
     uint256 public price; // price for creating a new TLD
     uint256 public royalty = 0; // royalty for Basin Domains when new domain is minted
@@ -47,7 +47,7 @@ contract BasinTLDFactory is IBasinTLDFactory, Ownable, ReentrancyGuard {
         require(strings.count(strings.toSlice(_name), strings.toSlice(" ")) == 0, "Name must have no spaces");
         require(strings.startsWith(strings.toSlice(_name), strings.toSlice(".")) == true, "Name must start with dot");
 
-        IBasinForbiddenTlds forbidden = IBasinForbiddenTlds(forbiddenTlds);
+        IBasinForbiddenTLDs forbidden = IBasinForbiddenTLDs(forbiddenTlds);
         require(forbidden.isTldForbidden(_name) == false, "TLD already exists or forbidden");
     }
 
@@ -86,7 +86,7 @@ contract BasinTLDFactory is IBasinTLDFactory, Ownable, ReentrancyGuard {
 
         BasinTLD tld = new BasinTLD(_name, _symbol, _tldOwner, _domainPrice, _buyingEnabled, royalty, address(this), metadataAddress);
 
-        IBasinForbiddenTlds forbidden = IBasinForbiddenTlds(forbiddenTlds);
+        IBasinForbiddenTLDs forbidden = IBasinForbiddenTLDs(forbiddenTlds);
         forbidden.addForbiddenTld(_name);
 
         tldNamesAddresses[_name] = address(tld); // store TLD name and address into mapping

@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import "./interfaces/IBasinMetadata.sol";
-import "../../interfaces/IBasinTLD.sol";
-import "../../lib/strings.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "base64-sol/base64.sol";
+import {IBasinMetadataStore} from "../registries/interfaces/IBasinMetadataStore.sol";
+import {IBasinTLD} from "./interfaces/IBasinTLD.sol";
+import {strings} from "../lib/strings.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /// @title Basin Domains TLD contract
 /// @author Tempe Techie
@@ -17,8 +16,8 @@ contract BasinTLD is IBasinTLD, ERC721, Ownable, ReentrancyGuard {
 
     // Domain struct is defined in IBasinTLD
 
-    address public immutable factoryAddress; // BasinTLDFactory address
-    address public metadataAddress; // BasinMetadata address
+    address public immutable FACTORY_ADDRESS; // BasinTLDFactory address
+    address public metadataAddress; // BasinMetadataStore address
     address public minter; // address which is allowed to mint domains even if contract is paused
     address public royaltyFeeUpdater; // address which is allowed to change the royalty fee
     address public royaltyFeeReceiver; // address which receives the royalty fee
@@ -58,7 +57,7 @@ contract BasinTLD is IBasinTLD, ERC721, Ownable, ReentrancyGuard {
 
         Ownable factory = Ownable(_factoryAddress);
 
-        factoryAddress = _factoryAddress;
+        FACTORY_ADDRESS = _factoryAddress;
         royaltyFeeUpdater = factory.owner();
         royaltyFeeReceiver = factory.owner();
 
@@ -77,7 +76,7 @@ contract BasinTLD is IBasinTLD, ERC721, Ownable, ReentrancyGuard {
     }
 
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-        return IBasinMetadata(metadataAddress).getMetadata(domains[domainIdsNames[_tokenId]].name, name(), _tokenId);
+        return IBasinMetadataStore(metadataAddress).getMetadata(domains[domainIdsNames[_tokenId]].name, name(), _tokenId);
     }
 
     // WRITE

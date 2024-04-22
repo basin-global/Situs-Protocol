@@ -3,22 +3,22 @@ import { expect } from "chai";
 import hre from "hardhat";
 import { ethers } from "hardhat";
 
-describe("BasinMetadata", function () {
+describe("BasinMetadataStore", function () {
     // Fixture
-    async function deployBasinMetadataFixture() {
+    async function deployBasinMetadataStoreFixture() {
         const [owner, otherAccount] = await hre.ethers.getSigners();
 
-        const BasinMetadata = await hre.ethers.getContractFactory("BasinMetadata");
-        const basinMetadata = await BasinMetadata.deploy();
+        const BasinMetadataStore = await hre.ethers.getContractFactory("BasinMetadataStore");
+        const basinMetadataStore = await BasinMetadataStore.deploy();
 
-        return { basinMetadata, owner, otherAccount };
+        return { basinMetadataStore, owner, otherAccount };
     }
 
     describe("Deployment", function () {
         it("Should deploy successfully", async function () {
-            const { basinMetadata } = await loadFixture(deployBasinMetadataFixture);
-            expect(await basinMetadata.getAddress()).to.be.properAddress;
-            expect(await basinMetadata.getAddress()).to.not.equal(ethers.ZeroAddress);
+            const { basinMetadataStore } = await loadFixture(deployBasinMetadataStoreFixture);
+            expect(await basinMetadataStore.getAddress()).to.be.properAddress;
+            expect(await basinMetadataStore.getAddress()).to.not.equal(ethers.ZeroAddress);
         });
     });
 });

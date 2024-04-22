@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import "base64-sol/base64.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {Base64} from "base64-sol/base64.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IBasinMetadataStore} from "./interfaces/IBasinMetadataStore.sol";
 
 /// @title Basin Domains TLD Metadata contract
 /// @author Tempe Techie
 /// @notice Contract that stores metadata for TLD contracts.
-contract BasinMetadata {
+contract BasinMetadataStore is IBasinMetadataStore {
     mapping(address => string) public descriptions; // TLD-specific descriptions, mapping(tldAddress => description)
     mapping(address => string) public brands; // TLD-specific brand names, mapping(tldAddress => brandName)
 
@@ -16,6 +17,7 @@ contract BasinMetadata {
     event DescriptionChanged(address indexed user, string description);
 
     // READ
+    // solhint-disable-next-line no-unused-vars
     function getMetadata(string calldata _domainName, string calldata _tld, uint256 _tokenId) public view returns (string memory) {
         string memory fullDomainName = string(abi.encodePacked(_domainName, _tld));
 
@@ -26,6 +28,7 @@ contract BasinMetadata {
                     Base64.encode(
                         bytes(
                             abi.encodePacked(
+                                /* solhint-disable quotes */ 
                                 '{"name": "',
                                 fullDomainName,
                                 '", ',
@@ -35,6 +38,7 @@ contract BasinMetadata {
                                 '"image": "',
                                 _getImage(fullDomainName, brands[msg.sender]),
                                 '"}'
+                                /* solhint-enable quotes */
                             )
                         )
                     )
@@ -47,6 +51,7 @@ contract BasinMetadata {
             bytes(
                 string(
                     abi.encodePacked(
+                        /* solhint-disable quotes */ 
                         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">',
                         '<defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">',
                         '<stop offset="0%" style="stop-color:rgb(68,67,241);stop-opacity:1" />',
@@ -58,6 +63,7 @@ contract BasinMetadata {
                         _brandName,
                         "</text>",
                         "</svg>"
+                        /* solhint-enable quotes */ 
                     )
                 )
             )

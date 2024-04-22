@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IBasinForbiddenTLDs} from "./interfaces/IBasinForbiddenTLDs.sol";
 
-contract BasinForbiddenTLDs is Ownable {
+contract BasinForbiddenTLDs is IBasinForbiddenTLDs, Ownable {
     // The purpose of this contract is to hold a registry TLD names that are either forbidden or have been already created/used.
     // There may be multiple Punk TLD Factory contracts and they need a joint registry of used or forbidden TLDs.
 
