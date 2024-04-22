@@ -28,7 +28,7 @@ contract BasinMetadataStore is IBasinMetadataStore {
                     Base64.encode(
                         bytes(
                             abi.encodePacked(
-                                /* solhint-disable quotes */ 
+                                /* solhint-disable quotes */
                                 '{"name": "',
                                 fullDomainName,
                                 '", ',
@@ -51,7 +51,7 @@ contract BasinMetadataStore is IBasinMetadataStore {
             bytes(
                 string(
                     abi.encodePacked(
-                        /* solhint-disable quotes */ 
+                        /* solhint-disable quotes */
                         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">',
                         '<defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">',
                         '<stop offset="0%" style="stop-color:rgb(68,67,241);stop-opacity:1" />',
@@ -63,7 +63,7 @@ contract BasinMetadataStore is IBasinMetadataStore {
                         _brandName,
                         "</text>",
                         "</svg>"
-                        /* solhint-enable quotes */ 
+                        /* solhint-enable quotes */
                     )
                 )
             )
