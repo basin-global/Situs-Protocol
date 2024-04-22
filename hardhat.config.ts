@@ -5,13 +5,18 @@ import type { HttpNetworkUserConfig } from "hardhat/types";
 import "@nomicfoundation/hardhat-toolbox";
 
 dotenv.config();
+const { PRIVATE_KEY, MNEMONIC } = process.env;
 
 const DEFAULT_MNEMONIC = "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
 
 const sharedNetworkConfig: HttpNetworkUserConfig = {};
-sharedNetworkConfig.accounts = {
-    mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC,
-};
+if (PRIVATE_KEY) {
+  sharedNetworkConfig.accounts = [PRIVATE_KEY];
+} else {
+  sharedNetworkConfig.accounts = {
+      mnemonic: MNEMONIC || DEFAULT_MNEMONIC,
+  };
+}
 
 const BASESCAN_API_KEY = process.env.BASESCAN_API_KEY || "";
 

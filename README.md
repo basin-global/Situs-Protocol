@@ -28,7 +28,8 @@ sequenceDiagram
 ```bash
 cp .env.sample .env
 ```
-add MNEMONIC and BASESCAN_API_KEY
+add PRIVATE_KEY (default) or MNEMONIC
+add BASESCAN_API_KEY
 
 ## Install Dependencies
 
