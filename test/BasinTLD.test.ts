@@ -6,7 +6,7 @@ import { ethers } from "hardhat";
 
 function calculateGasCosts(testName: string, receipt: ContractTransactionReceipt | null) {
     if (!receipt) {
-        return
+        return;
     }
     console.log(testName + " gasUsed: " + receipt.gasUsed);
 
@@ -105,7 +105,7 @@ describe("BasinTLD", function () {
 
             calculateGasCosts("Mint", receipt);
 
-            let event = receipt?.logs.find((log) => log instanceof EventLog && log.fragment.name === 'DomainCreated') as EventLog;
+            const event = receipt?.logs.find((log) => log instanceof EventLog && log.fragment.name === "DomainCreated") as EventLog;
             expect(event).is.not.empty;
 
             const totalSupplyAfter = await basinTLD.totalSupply();
@@ -114,9 +114,7 @@ describe("BasinTLD", function () {
             // get referrer's balance AFTER
             const balanceReferrerAfter = await hre.ethers.provider.getBalance(referrer.address);
 
-            expect(BigInt(balanceReferrerAfter) - BigInt(balanceReferrerBefore)).to.equal(
-                BigInt("100000000000000000"),
-            );
+            expect(BigInt(balanceReferrerAfter) - BigInt(balanceReferrerBefore)).to.equal(BigInt("100000000000000000"));
 
             // get domain name by token ID
             const firstDomainName = await basinTLD.domainIdsNames(1);
@@ -183,7 +181,7 @@ describe("BasinTLD", function () {
         });
 
         it("should transfer domain to another user", async function () {
-            const { basinTLD, signer, anotherUser, referrer } = await loadFixture(deployBasinTLDFixture);
+            const { basinTLD, signer, anotherUser } = await loadFixture(deployBasinTLDFixture);
             await basinTLD.toggleBuyingDomains(); // enable buying domains
 
             const newDomainName = "techie";
@@ -229,7 +227,7 @@ describe("BasinTLD", function () {
 
             calculateGasCosts("Transfer", receipt);
 
-            let event = receipt?.logs.find((log) => log instanceof EventLog && log.fragment.name === 'Transfer') as EventLog;
+            const event = receipt?.logs.find((log) => log instanceof EventLog && log.fragment.name === "Transfer") as EventLog;
             expect(event).is.not.empty;
 
             // get default name (after)
@@ -250,7 +248,7 @@ describe("BasinTLD", function () {
         });
 
         it("should change default domain", async function () {
-            const { basinTLD, signer, anotherUser, referrer } = await loadFixture(deployBasinTLDFixture);
+            const { basinTLD, signer, anotherUser } = await loadFixture(deployBasinTLDFixture);
             await basinTLD.toggleBuyingDomains(); // enable buying domains
 
             const price = await basinTLD.price();
@@ -308,7 +306,7 @@ describe("BasinTLD", function () {
         });
 
         it("should change domain data", async function () {
-            const { basinTLD, signer, anotherUser, referrer } = await loadFixture(deployBasinTLDFixture);
+            const { basinTLD, signer, anotherUser } = await loadFixture(deployBasinTLDFixture);
             await basinTLD.toggleBuyingDomains(); // enable buying domains
 
             const price = await basinTLD.price();
@@ -344,7 +342,7 @@ describe("BasinTLD", function () {
 
             calculateGasCosts("DataChanged", receipt);
 
-            let event = receipt?.logs.find((log) => log instanceof EventLog && log.fragment.name === 'DataChanged') as EventLog;
+            const event = receipt?.logs.find((log) => log instanceof EventLog && log.fragment.name === "DataChanged") as EventLog;
             expect(event).is.not.empty;
 
             // get domain data by domain name (after)
@@ -361,7 +359,7 @@ describe("BasinTLD", function () {
         });
 
         it("should change metadata", async function () {
-            const { basinTLD, basinMetadataStore, signer, anotherUser, referrer } = await loadFixture(deployBasinTLDFixture);
+            const { basinTLD, basinMetadataStore, signer, anotherUser } = await loadFixture(deployBasinTLDFixture);
             await basinTLD.toggleBuyingDomains(); // enable buying domains
 
             const price = await basinTLD.price();
@@ -411,7 +409,7 @@ describe("BasinTLD", function () {
         });
 
         it("should create a new valid domain, but with non-ascii letters input", async function () {
-            const { basinTLD, signer, anotherUser, referrer } = await loadFixture(deployBasinTLDFixture);
+            const { basinTLD, signer, referrer } = await loadFixture(deployBasinTLDFixture);
             await basinTLD.toggleBuyingDomains(); // enable buying domains
 
             const price = await basinTLD.price();
@@ -426,7 +424,7 @@ describe("BasinTLD", function () {
 
             calculateGasCosts("Mint " + newDomainName, receipt);
 
-            let event = receipt?.logs.find((log) => log instanceof EventLog && log.fragment.name === 'DomainCreated') as EventLog;
+            const event = receipt?.logs.find((log) => log instanceof EventLog && log.fragment.name === "DomainCreated") as EventLog;
             expect(event).is.not.empty;
 
             const totalSupplyAfter = await basinTLD.totalSupply();
@@ -438,7 +436,7 @@ describe("BasinTLD", function () {
         });
 
         it("should mint a token and burn it and mint it again", async function () {
-            const { basinTLD, signer, anotherUser, referrer } = await loadFixture(deployBasinTLDFixture);
+            const { basinTLD, signer, referrer } = await loadFixture(deployBasinTLDFixture);
             await basinTLD.toggleBuyingDomains(); // enable buying domains
 
             const totalSupplyBeforeMint = await basinTLD.totalSupply();
@@ -490,7 +488,7 @@ describe("BasinTLD", function () {
 
             calculateGasCosts("Burn domain", receipt);
 
-            let event = receipt?.logs.find((log) => log instanceof EventLog && log.fragment.name === 'DomainBurned') as EventLog;
+            const event = receipt?.logs.find((log) => log instanceof EventLog && log.fragment.name === "DomainBurned") as EventLog;
             expect(event).is.not.empty;
 
             const totalSupplyAfterBurn = await basinTLD.totalSupply();
@@ -659,7 +657,7 @@ describe("BasinTLD", function () {
 
             calculateGasCosts("Burn second domain", receipt);
 
-            let event = receipt?.logs.find((log) => log instanceof EventLog && log.fragment.name === 'DomainBurned') as EventLog;
+            const event = receipt?.logs.find((log) => log instanceof EventLog && log.fragment.name === "DomainBurned") as EventLog;
             expect(event).is.not.empty;
 
             const totalSupplyAfterBurn = await basinTLD.totalSupply();
