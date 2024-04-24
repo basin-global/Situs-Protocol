@@ -20,7 +20,7 @@ sequenceDiagram
     basinResolverNonUpgradable ->>+ basinTLDFactory: addFactoryAddress
     deployer ->>+ basinTLDFactory: ownerCreateTld (non-custom metadata)
     deployer ->>+ basinMetadata3: Instantiate
-    deployer ->>+ basinTLD: Instantiate (with SitusTLDFactory and SitusMetadata3)
+    deployer ->>+ basinTLD: Instantiate (with SitusTLDFactory and BasinMetadata3)
 ```
 
 ## Set up .env
