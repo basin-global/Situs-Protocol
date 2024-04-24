@@ -23,6 +23,56 @@ sequenceDiagram
     deployer ->>+ basinTLD: Instantiate (with SitusTLDFactory and BasinMetadata3)
 ```
 
+## SitusTLDFactory
+```mermaid
+sequenceDiagram
+    participant A as User
+    participant O as Owner
+    participant F as SitusTLDFactory
+    participant S as SitusTLD
+    participant T as ForbiddenTLDs
+
+    Note over A, F: TLD Creation by User
+    A->>+F: createTld(_name, _symbol, _tldOwner, _domainPrice, _buyingEnabled)
+    F->>F: Verify buying is enabled
+    F->>F: Check payment
+    F->>F: _createTld (internal function call)
+    F->>F: Validate TLD name
+    F->>+T: Check if TLD is forbidden
+    F->>S: Create new TLD
+    F->>T: Add new TLD to forbidden list
+    Note over O, F: Owner Operations
+    O->>+F: changePrice(newPrice)
+    O->>+F: changeRoyalty(newRoyalty)
+    O->>+F: changeMetadataAddress(newAddress)
+    O->>+F: ownerCreateTld(_name, _symbol, _tldOwner, _domainPrice, _buyingEnabled)
+    O->>F: toggleBuyingTlds()
+```
+
+## SitusTLD
+```mermaid
+sequenceDiagram
+    participant O as Owner
+    participant U as User
+    participant T as SitusTLD
+    participant M as SitusMetadataStore
+
+    O->>M: Change Metadata Description
+    O->>T: Toggle Buying
+    O->>T: Change Max Length for Domain Name    
+    O->>T: Change Domain Price
+    O->>T: Change Referral Fee
+    O->>T: Freeze Metadata
+    O->>T: Change Royalty Amount
+
+    U->>T: Mint Domain
+    U->>T: Edit Domain Data
+    U->>T: Edit Default Domain
+    U->>T: Transfer Domain
+    U->>T: Burn Domain
+```
+If buying is disabled, owner, but not users can mint.
+
 ## Set up .env
 
 ```bash
