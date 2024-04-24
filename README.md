@@ -30,14 +30,20 @@ sequenceDiagram
 ## SitusTLDFactory
 ```mermaid
 sequenceDiagram
-    participant A as User
-    participant O as Owner
+    participant O as TLD Owner
+    participant A as Admin
     participant F as SitusTLDFactory
     participant S as SitusTLD
     participant T as ForbiddenTLDs
 
-    Note over A, F: TLD Creation by User
-    A->>+F: createTld(_name, _symbol, _tldOwner, _domainPrice, _buyingEnabled)
+    Note over A, F: Admin Operations
+    A->>+F: changePrice(newPrice)
+    A->>+F: changeRoyalty(newRoyalty)
+    A->>+F: changeMetadataAddress(newAddress)
+    A->>+F: ownerCreateTld(_name, _symbol, _tldOwner, _domainPrice, _buyingEnabled)
+    A->>F: toggleBuyingTlds()
+    Note over O, T: TLD Creation by TLD Owner
+    O->>+F: createTld(_name, _symbol, _tldOwner, _domainPrice, _buyingEnabled)
     F->>F: Verify buying is enabled
     F->>F: Check payment
     F->>F: _createTld (internal function call)
@@ -45,22 +51,16 @@ sequenceDiagram
     F->>+T: Check if TLD is forbidden
     F->>S: Create new TLD
     F->>T: Add new TLD to forbidden list
-    Note over O, F: Owner Operations
-    O->>+F: changePrice(newPrice)
-    O->>+F: changeRoyalty(newRoyalty)
-    O->>+F: changeMetadataAddress(newAddress)
-    O->>+F: ownerCreateTld(_name, _symbol, _tldOwner, _domainPrice, _buyingEnabled)
-    O->>F: toggleBuyingTlds()
 ```
 
 ## SitusTLD
 ```mermaid
 sequenceDiagram
-    participant O as Owner
     participant U as User
+    participant O as TLD Owner
     participant T as SitusTLD
     participant M as SitusMetadataStore
-
+    Note over O, M: TLD Operations by TLD Owner
     O->>M: Change Metadata Description
     O->>T: Toggle Buying
     O->>T: Change Max Length for Domain Name    
@@ -68,7 +68,7 @@ sequenceDiagram
     O->>T: Change Referral Fee
     O->>T: Freeze Metadata
     O->>T: Change Royalty Amount
-
+    Note over U, T: Domain Creation by User
     U->>T: Mint Domain
     U->>T: Edit Domain Data
     U->>T: Edit Default Domain
