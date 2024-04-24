@@ -1,3 +1,7 @@
+# Situs Protocol
+
+The Situs Protocol supports funding for place-based regeneration, conservation, and restoration, emphasizing a deep 'sense of place' and placemaking. It offers customizable 'member accounts'—like alex.tokyo, alex.ganges, and alex.nyc—that allow individuals to connect with specific locations. These community-owned and governed accounts are utilized by local organizations for memberships and include features for voting and other benefits. Additionally, each account can handle transactions with any Ethereum-based asset, supporting local initiatives. The protocol aims to deepen connections to places and bridge the gap between mere physical space and meaningful place.
+
 # Situs Protocol Core Contracts
 
 Contracts to create a top-level domain (TLD) such as `.basin`
@@ -152,7 +156,7 @@ npm run deploy localhost
 
 ## References
 
-- Adapted from the Flexi contracts in [punk-contracts repo](https://github.com/punk-domains-2/punk-contracts) by @tempe-techie and @johnson86tw
+- Adapted from the Flexi contracts in [punk-contracts repo](https://github.com/punk-domains-2/punk-contracts) by @tempe-techie and @johnson86tw and offered under same [LICENSE](https://github.com/basin-global/SitusProtocolContracts/blob/main/LICENSE)
 
 ---
 ---
