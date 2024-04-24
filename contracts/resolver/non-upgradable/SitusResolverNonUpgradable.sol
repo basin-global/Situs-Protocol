@@ -2,16 +2,16 @@
 pragma solidity ^0.8.4;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IBasinTLDFactory} from "../../factories/interfaces/IBasinTLDFactory.sol";
-import {IBasinTLD} from "../../tlds/interfaces/IBasinTLD.sol";
+import {ISitusTLDFactory} from "../../factories/interfaces/ISitusTLDFactory.sol";
+import {ISitusTLD} from "../../tlds/interfaces/ISitusTLD.sol";
 import {strings} from "../../lib/strings.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {IERC721Metadata} from "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
-/// @title Basin Domains Resolver v2
+/// @title Situs Domains Resolver v2
 /// @author Tempe Techie
-/// @notice This contract resolves all basin domains and TLDs on the particular blockchain where it is deployed
-contract BasinResolverNonUpgradable is Ownable {
+/// @notice This contract resolves all situs domains and TLDs on the particular blockchain where it is deployed
+contract SitusResolverNonUpgradable is Ownable {
     using strings for string;
 
     address[] public factories;
@@ -30,10 +30,10 @@ contract BasinResolverNonUpgradable is Ownable {
     function getDefaultDomain(address _addr, string memory _tld) public view returns (string memory) {
         uint256 fLength = factories.length;
         for (uint256 i = 0; i < fLength; ) {
-            address tldAddr = IBasinTLDFactory(factories[i]).tldNamesAddresses(_tld);
+            address tldAddr = ISitusTLDFactory(factories[i]).tldNamesAddresses(_tld);
 
             if (tldAddr != address(0) && !isTldDeprecated[tldAddr]) {
-                return string(IBasinTLD(tldAddr).defaultNames(_addr));
+                return string(ISitusTLD(tldAddr).defaultNames(_addr));
             }
 
             unchecked {
@@ -50,12 +50,12 @@ contract BasinResolverNonUpgradable is Ownable {
 
         uint256 fLength = factories.length;
         for (uint256 i = 0; i < fLength; ) {
-            string[] memory tldNames = IBasinTLDFactory(factories[i]).getTldsArray();
+            string[] memory tldNames = ISitusTLDFactory(factories[i]).getTldsArray();
 
             for (uint256 j = 0; j < tldNames.length; ++j) {
                 string memory tldName = tldNames[j];
-                address tldAddr = IBasinTLDFactory(factories[i]).tldNamesAddresses(tldName);
-                string memory defaultName = IBasinTLD(tldAddr).defaultNames(_addr);
+                address tldAddr = ISitusTLDFactory(factories[i]).tldNamesAddresses(tldName);
+                string memory defaultName = ISitusTLD(tldAddr).defaultNames(_addr);
 
                 if (strings.len(strings.toSlice(defaultName)) > 0 && !isTldDeprecated[tldAddr]) {
                     if (j == (tldNames.length - 1)) {
@@ -79,10 +79,10 @@ contract BasinResolverNonUpgradable is Ownable {
     function getDomainHolder(string memory _domainName, string memory _tld) public view returns (address) {
         uint256 fLength = factories.length;
         for (uint256 i = 0; i < fLength; ) {
-            address tldAddr = IBasinTLDFactory(factories[i]).tldNamesAddresses(_tld);
+            address tldAddr = ISitusTLDFactory(factories[i]).tldNamesAddresses(_tld);
 
             if (tldAddr != address(0) && !isTldDeprecated[tldAddr]) {
-                return address(IBasinTLD(tldAddr).getDomainHolder(_domainName));
+                return address(ISitusTLD(tldAddr).getDomainHolder(_domainName));
             }
 
             unchecked {
@@ -97,10 +97,10 @@ contract BasinResolverNonUpgradable is Ownable {
     function getDomainData(string memory _domainName, string memory _tld) public view returns (string memory) {
         uint256 fLength = factories.length;
         for (uint256 i = 0; i < fLength; ) {
-            address tldAddr = IBasinTLDFactory(factories[i]).tldNamesAddresses(_tld);
+            address tldAddr = ISitusTLDFactory(factories[i]).tldNamesAddresses(_tld);
 
             if (tldAddr != address(0) && !isTldDeprecated[tldAddr]) {
-                return string(IBasinTLD(tldAddr).getDomainData(_domainName));
+                return string(ISitusTLD(tldAddr).getDomainData(_domainName));
             }
 
             unchecked {
@@ -115,10 +115,10 @@ contract BasinResolverNonUpgradable is Ownable {
     function getDomainTokenUri(string memory _domainName, string memory _tld) public view returns (string memory) {
         uint256 fLength = factories.length;
         for (uint256 i = 0; i < fLength; ) {
-            address tldAddr = IBasinTLDFactory(factories[i]).tldNamesAddresses(_tld);
+            address tldAddr = ISitusTLDFactory(factories[i]).tldNamesAddresses(_tld);
 
             if (tldAddr != address(0) && !isTldDeprecated[tldAddr]) {
-                (, uint256 _tokenId, , ) = IBasinTLD(tldAddr).domains(_domainName);
+                (, uint256 _tokenId, , ) = ISitusTLD(tldAddr).domains(_domainName);
                 return IERC721Metadata(tldAddr).tokenURI(_tokenId);
             }
 
@@ -148,12 +148,12 @@ contract BasinResolverNonUpgradable is Ownable {
         // if no custom default domain or if it's not valid, find another default domain
         uint256 fLength = factories.length;
         for (uint256 i = 0; i < fLength; ) {
-            string[] memory tldNames = IBasinTLDFactory(factories[i]).getTldsArray();
+            string[] memory tldNames = ISitusTLDFactory(factories[i]).getTldsArray();
 
             for (uint256 j = 0; j < tldNames.length; ++j) {
                 string memory tldName = tldNames[j];
-                address tldAddr = IBasinTLDFactory(factories[i]).tldNamesAddresses(tldName);
-                string memory defaultName = IBasinTLD(tldAddr).defaultNames(_addr);
+                address tldAddr = ISitusTLDFactory(factories[i]).tldNamesAddresses(tldName);
+                string memory defaultName = ISitusTLD(tldAddr).defaultNames(_addr);
 
                 if (strings.len(strings.toSlice(defaultName)) > 0 && !isTldDeprecated[tldAddr]) {
                     return string(abi.encodePacked(defaultName, tldName));
@@ -172,7 +172,7 @@ contract BasinResolverNonUpgradable is Ownable {
     function getTldAddress(string memory _tldName) public view returns (address) {
         uint256 fLength = factories.length;
         for (uint256 i = 0; i < fLength; ) {
-            address tldAddr = IBasinTLDFactory(factories[i]).tldNamesAddresses(_tldName);
+            address tldAddr = ISitusTLDFactory(factories[i]).tldNamesAddresses(_tldName);
 
             if (tldAddr != address(0) && !isTldDeprecated[tldAddr]) {
                 return tldAddr;
@@ -192,7 +192,7 @@ contract BasinResolverNonUpgradable is Ownable {
     function getTldFactoryAddress(string memory _tldName) public view returns (address) {
         uint256 fLength = factories.length;
         for (uint256 i = 0; i < fLength; ) {
-            address tldAddr = IBasinTLDFactory(factories[i]).tldNamesAddresses(_tldName);
+            address tldAddr = ISitusTLDFactory(factories[i]).tldNamesAddresses(_tldName);
 
             if (tldAddr != address(0) && !isTldDeprecated[tldAddr]) {
                 return factories[i];
@@ -214,11 +214,11 @@ contract BasinResolverNonUpgradable is Ownable {
 
         uint256 fLength = factories.length;
         for (uint256 i = 0; i < fLength; ) {
-            string[] memory tldNames = IBasinTLDFactory(factories[i]).getTldsArray();
+            string[] memory tldNames = ISitusTLDFactory(factories[i]).getTldsArray();
 
             for (uint256 j = 0; j < tldNames.length; ++j) {
                 string memory tldName = tldNames[j];
-                address tldAddr = IBasinTLDFactory(factories[i]).tldNamesAddresses(tldName);
+                address tldAddr = ISitusTLDFactory(factories[i]).tldNamesAddresses(tldName);
 
                 if (!isTldDeprecated[tldAddr]) {
                     result = abi.encodePacked(

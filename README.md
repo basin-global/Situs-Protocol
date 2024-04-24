@@ -1,26 +1,26 @@
-# Basin Domains Core Contracts
+# Situs Protocol Core Contracts
 
 Contracts to create a top-level domain (TLD) such as `.basin`
 
 ```mermaid
 sequenceDiagram
     participant deployer as Deployer
-    participant basinMetadataStore as BasinMetadataStore
-    participant basinForbiddenTLDs as BasinForbiddenTLDs
-    participant basinResolverNonUpgradable as BasinResolverNonUpgradable
-    participant basinTLDFactory as BasinTLDFactory
-    participant basinMetadata3 as BasinMetadata3
-    participant basinTLD as BasinTLD
+    participant basinMetadataStore as SitusMetadataStore
+    participant basinForbiddenTLDs as SitusForbiddenTLDs
+    participant basinResolverNonUpgradable as SitusResolverNonUpgradable
+    participant basinTLDFactory as SitusTLDFactory
+    participant basinMetadata3 as SitusMetadata3
+    participant basinTLD as SitusTLD
 
     deployer ->>+ basinMetadataStore: Instantiate
     deployer ->>+ basinForbiddenTLDs: Instantiate
     deployer ->>+ basinResolverNonUpgradable: Instantiate
-    deployer ->>+ basinTLDFactory: Instantiate (with BasinForbiddenTLDs and BasinMetadataStore)
+    deployer ->>+ basinTLDFactory: Instantiate (with SitusForbiddenTLDs and SitusMetadataStore)
     basinForbiddenTLDs ->>+ basinTLDFactory: addFactoryAddress
     basinResolverNonUpgradable ->>+ basinTLDFactory: addFactoryAddress
     deployer ->>+ basinTLDFactory: ownerCreateTld (non-custom metadata)
     deployer ->>+ basinMetadata3: Instantiate
-    deployer ->>+ basinTLD: Instantiate (with BasinTLDFactory and BasinMetadata3)
+    deployer ->>+ basinTLD: Instantiate (with SitusTLDFactory and SitusMetadata3)
 ```
 
 ## Set up .env

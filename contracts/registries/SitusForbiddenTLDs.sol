@@ -2,11 +2,11 @@
 pragma solidity ^0.8.4;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IBasinForbiddenTLDs} from "./interfaces/IBasinForbiddenTLDs.sol";
+import {ISitusForbiddenTLDs} from "./interfaces/ISitusForbiddenTLDs.sol";
 
-contract BasinForbiddenTLDs is IBasinForbiddenTLDs, Ownable {
+contract SitusForbiddenTLDs is ISitusForbiddenTLDs, Ownable {
     // The purpose of this contract is to hold a registry TLD names that are either forbidden or have been already created/used.
-    // There may be multiple Punk TLD Factory contracts and they need a joint registry of used or forbidden TLDs.
+    // There may be multiple Situs TLD Factory contracts and they need a joint registry of used or forbidden TLDs.
 
     mapping(string => bool) public forbidden; // forbidden TLDs
     mapping(address => bool) public factoryAddresses; // list of TLD factories that are allowed to add forbidden TLDs

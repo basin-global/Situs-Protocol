@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "hardhat compile",
-    "deploy": "hardhat ignition deploy ./ignition/modules/BasinTLD.ts --network",
+    "deploy": "hardhat ignition deploy ./ignition/modules/SitusTLD.ts --network",
     "test": "hardhat test",
     "lint": "npm run lint:sol && npm run lint:ts",
     "lint:sol": "solhint 'contracts/**/*.sol'",

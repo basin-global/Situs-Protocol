@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-interface IBasinTLD is IERC721 {
+interface ISitusTLD is IERC721 {
     struct Domain {
         string name; // domain name that goes before the TLD name; example: "tmo" in "tmo.basin"
         uint256 tokenId;

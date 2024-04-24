@@ -3,12 +3,12 @@ pragma solidity ^0.8.4;
 
 import {Base64} from "base64-sol/base64.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IBasinMetadataStore} from "./interfaces/IBasinMetadataStore.sol";
+import {ISitusMetadataStore} from "./interfaces/ISitusMetadataStore.sol";
 
-/// @title Basin Domains TLD Metadata contract
+/// @title Situs TLD Metadata contract
 /// @author Tempe Techie
 /// @notice Contract that stores metadata for TLD contracts.
-contract BasinMetadataStore is IBasinMetadataStore {
+contract SitusMetadataStore is ISitusMetadataStore {
     mapping(address => string) public descriptions; // TLD-specific descriptions, mapping(tldAddress => description)
     mapping(address => string) public brands; // TLD-specific brand names, mapping(tldAddress => brandName)
 

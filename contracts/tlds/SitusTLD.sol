@@ -1,23 +1,23 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import {IBasinMetadataStore} from "../registries/interfaces/IBasinMetadataStore.sol";
-import {IBasinTLD} from "./interfaces/IBasinTLD.sol";
+import {ISitusMetadataStore} from "../registries/interfaces/ISitusMetadataStore.sol";
+import {ISitusTLD} from "./interfaces/ISitusTLD.sol";
 import {strings} from "../lib/strings.sol";
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-/// @title Basin Domains TLD contract
+/// @title Situs Domains TLD contract
 /// @author Tempe Techie
 /// @notice Dynamically generated NFT contract which represents a top-level domain
-contract BasinTLD is IBasinTLD, ERC721, Ownable, ReentrancyGuard {
+contract SitusTLD is ISitusTLD, ERC721, Ownable, ReentrancyGuard {
     using strings for string;
 
-    // Domain struct is defined in IBasinTLD
+    // Domain struct is defined in ISitusTLD
 
-    address public immutable FACTORY_ADDRESS; // BasinTLDFactory address
-    address public metadataAddress; // BasinMetadataStore address
+    address public immutable FACTORY_ADDRESS; // SitusTLDFactory address
+    address public metadataAddress; // SitusMetadataStore address
     address public minter; // address which is allowed to mint domains even if contract is paused
     address public royaltyFeeUpdater; // address which is allowed to change the royalty fee
     address public royaltyFeeReceiver; // address which receives the royalty fee
@@ -30,11 +30,11 @@ contract BasinTLD is IBasinTLD, ERC721, Ownable, ReentrancyGuard {
     uint256 public idCounter = 1; // up only
 
     uint256 public override price; // domain price
-    uint256 public royalty; // share of each domain purchase (in bips) that goes to Basin Domains
+    uint256 public royalty; // share of each domain purchase (in bips) that goes to Situs Domains
     uint256 public override referral = 1000; // share of each domain purchase (in bips) that goes to the referrer (referral fee)
     uint256 public nameMaxLength = 140; // max length of a domain name
 
-    mapping(string => Domain) public override domains; // mapping (domain name => Domain struct); Domain struct is defined in IBasinTLD
+    mapping(string => Domain) public override domains; // mapping (domain name => Domain struct); Domain struct is defined in ISitusTLD
     mapping(uint256 => string) public domainIdsNames; // mapping (tokenId => domain name)
     mapping(address => string) public override defaultNames; // user's default domain
 
@@ -76,7 +76,7 @@ contract BasinTLD is IBasinTLD, ERC721, Ownable, ReentrancyGuard {
     }
 
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-        return IBasinMetadataStore(metadataAddress).getMetadata(domains[domainIdsNames[_tokenId]].name, name(), _tokenId);
+        return ISitusMetadataStore(metadataAddress).getMetadata(domains[domainIdsNames[_tokenId]].name, name(), _tokenId);
     }
 
     // WRITE
@@ -144,7 +144,7 @@ contract BasinTLD is IBasinTLD, ERC721, Ownable, ReentrancyGuard {
 
         _mint(_domainHolder, idCounter);
 
-        Domain memory newDomain; // Domain struct is defined in IBasinTLD
+        Domain memory newDomain; // Domain struct is defined in ISitusTLD
 
         // store data in Domain struct
         newDomain.name = _domainName;

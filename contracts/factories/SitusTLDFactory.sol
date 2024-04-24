@@ -4,24 +4,24 @@ pragma solidity ^0.8.4;
 import {strings} from "../lib/strings.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {BasinTLD} from "../tlds/BasinTLD.sol";
-import {IBasinTLDFactory} from "./interfaces/IBasinTLDFactory.sol";
-import {IBasinForbiddenTLDs} from "../registries/interfaces/IBasinForbiddenTLDs.sol";
+import {SitusTLD} from "../tlds/SitusTLD.sol";
+import {ISitusTLDFactory} from "./interfaces/ISitusTLDFactory.sol";
+import {ISitusForbiddenTLDs} from "../registries/interfaces/ISitusForbiddenTLDs.sol";
 
-/// @title Basin Domains TLD Factory contract
+/// @title Situs TLD Factory contract
 /// @author Tempe Techie
 /// @notice Factory contract dynamically generates new TLD contracts.
-contract BasinTLDFactory is IBasinTLDFactory, Ownable, ReentrancyGuard {
+contract SitusTLDFactory is ISitusTLDFactory, Ownable, ReentrancyGuard {
     using strings for string;
 
     string[] public tlds; // existing TLDs
     mapping(string => address) public override tldNamesAddresses; // a mapping of TLDs (string => TLDaddress)
 
     address public forbiddenTlds; // address of the contract that stores the list of forbidden TLDs
-    address public metadataAddress; // default BasinMetadataStore address
+    address public metadataAddress; // default SitusMetadataStore address
 
     uint256 public price; // price for creating a new TLD
-    uint256 public royalty = 0; // royalty for Basin Domains when new domain is minted
+    uint256 public royalty = 0; // royalty for Situs Domains when new domain is minted
     bool public buyingEnabled = false; // buying TLDs enabled (true/false)
     uint256 public nameMaxLength = 40; // the maximum length of a TLD name
 
@@ -47,7 +47,7 @@ contract BasinTLDFactory is IBasinTLDFactory, Ownable, ReentrancyGuard {
         require(strings.count(strings.toSlice(_name), strings.toSlice(" ")) == 0, "Name must have no spaces");
         require(strings.startsWith(strings.toSlice(_name), strings.toSlice(".")) == true, "Name must start with dot");
 
-        IBasinForbiddenTLDs forbidden = IBasinForbiddenTLDs(forbiddenTlds);
+        ISitusForbiddenTLDs forbidden = ISitusForbiddenTLDs(forbiddenTlds);
         require(forbidden.isTldForbidden(_name) == false, "TLD already exists or forbidden");
     }
 
@@ -84,9 +84,9 @@ contract BasinTLDFactory is IBasinTLDFactory, Ownable, ReentrancyGuard {
 
         _validTldName(_name);
 
-        BasinTLD tld = new BasinTLD(_name, _symbol, _tldOwner, _domainPrice, _buyingEnabled, royalty, address(this), metadataAddress);
+        SitusTLD tld = new SitusTLD(_name, _symbol, _tldOwner, _domainPrice, _buyingEnabled, royalty, address(this), metadataAddress);
 
-        IBasinForbiddenTLDs forbidden = IBasinForbiddenTLDs(forbiddenTlds);
+        ISitusForbiddenTLDs forbidden = ISitusForbiddenTLDs(forbiddenTlds);
         forbidden.addForbiddenTld(_name);
 
         tldNamesAddresses[_name] = address(tld); // store TLD name and address into mapping

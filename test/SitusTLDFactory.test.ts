@@ -3,57 +3,57 @@ import { expect } from "chai";
 import hre from "hardhat";
 import { ethers } from "hardhat";
 
-describe("BasinTLDFactory", function () {
+describe("SitusTLDFactory", function () {
     const tldPrice = ethers.parseUnits("1", "ether");
 
     // Fixture
-    async function deployBasinTLDFactoryFixture() {
+    async function deploySitusTLDFactoryFixture() {
         const [signer, anotherUser] = await hre.ethers.getSigners();
 
-        const BasinMetadataStore = await hre.ethers.getContractFactory("BasinMetadataStore");
-        const basinMetadataStore = await BasinMetadataStore.deploy();
-        const basinMetadataStoreAddress = await basinMetadataStore.getAddress();
+        const SitusMetadataStore = await hre.ethers.getContractFactory("SitusMetadataStore");
+        const situsMetadataStore = await SitusMetadataStore.deploy();
+        const situsMetadataStoreAddress = await situsMetadataStore.getAddress();
 
-        const BasinForbiddenTLDs = await hre.ethers.getContractFactory("BasinForbiddenTLDs");
-        const basinForbiddenTLDs = await BasinForbiddenTLDs.deploy();
-        const basinForbiddenTLDsAddress = await basinForbiddenTLDs.getAddress();
+        const SitusForbiddenTLDs = await hre.ethers.getContractFactory("SitusForbiddenTLDs");
+        const situsForbiddenTLDs = await SitusForbiddenTLDs.deploy();
+        const situsForbiddenTLDsAddress = await situsForbiddenTLDs.getAddress();
 
-        const BasinResolverNonUpgradable = await hre.ethers.getContractFactory("BasinResolverNonUpgradable");
-        const basinResolverNonUpgradable = await BasinResolverNonUpgradable.deploy();
+        const SitusResolverNonUpgradable = await hre.ethers.getContractFactory("SitusResolverNonUpgradable");
+        const situsResolverNonUpgradable = await SitusResolverNonUpgradable.deploy();
 
-        const BasinTLDFactory = await hre.ethers.getContractFactory("BasinTLDFactory");
-        const basinTLDFactory = await BasinTLDFactory.deploy(tldPrice, basinForbiddenTLDsAddress, basinMetadataStoreAddress);
-        const basinTLDFactoryAddress = await basinTLDFactory.getAddress();
+        const SitusTLDFactory = await hre.ethers.getContractFactory("SitusTLDFactory");
+        const situsTLDFactory = await SitusTLDFactory.deploy(tldPrice, situsForbiddenTLDsAddress, situsMetadataStoreAddress);
+        const situsTLDFactoryAddress = await situsTLDFactory.getAddress();
 
-        await basinForbiddenTLDs.addFactoryAddress(basinTLDFactoryAddress);
-        await basinResolverNonUpgradable.addFactoryAddress(basinTLDFactoryAddress);
+        await situsForbiddenTLDs.addFactoryAddress(situsTLDFactoryAddress);
+        await situsResolverNonUpgradable.addFactoryAddress(situsTLDFactoryAddress);
 
-        return { basinTLDFactory, basinForbiddenTLDs, signer, anotherUser };
+        return { situsTLDFactory, situsForbiddenTLDs, signer, anotherUser };
     }
 
     describe("Deployment", function () {
         it("Should deploy successfully", async function () {
-            const { basinTLDFactory } = await loadFixture(deployBasinTLDFactoryFixture);
-            expect(await basinTLDFactory.getAddress()).to.be.properAddress;
-            expect(await basinTLDFactory.getAddress()).to.not.equal(ethers.ZeroAddress);
+            const { situsTLDFactory } = await loadFixture(deploySitusTLDFactoryFixture);
+            expect(await situsTLDFactory.getAddress()).to.be.properAddress;
+            expect(await situsTLDFactory.getAddress()).to.not.equal(ethers.ZeroAddress);
         });
     });
 
     describe("Create TLD", function () {
         it("should confirm forbidden TLD names defined in the constructor", async function () {
-            const { basinForbiddenTLDs } = await loadFixture(deployBasinTLDFactoryFixture);
-            const forbiddenCom = await basinForbiddenTLDs.forbidden(".com");
+            const { situsForbiddenTLDs } = await loadFixture(deploySitusTLDFactoryFixture);
+            const forbiddenCom = await situsForbiddenTLDs.forbidden(".com");
             expect(forbiddenCom).to.be.true;
 
-            const forbiddenEth = await basinForbiddenTLDs.forbidden(".eth");
+            const forbiddenEth = await situsForbiddenTLDs.forbidden(".eth");
             expect(forbiddenEth).to.be.true;
         });
 
         it("should create a new valid TLD", async function () {
-            const { basinTLDFactory, signer, anotherUser } = await loadFixture(deployBasinTLDFactoryFixture);
-            await basinTLDFactory.toggleBuyingTlds(); // enable buying TLDs
+            const { situsTLDFactory, signer, anotherUser } = await loadFixture(deploySitusTLDFactoryFixture);
+            await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
-            const price = await basinTLDFactory.price();
+            const price = await situsTLDFactory.price();
             expect(price).to.equal(tldPrice);
 
             // get user&signer balances BEFORE
@@ -61,7 +61,7 @@ describe("BasinTLDFactory", function () {
             const balanceUserBefore = await hre.ethers.provider.getBalance(anotherUser.address);
 
             await expect(
-                basinTLDFactory.connect(anotherUser).createTld(
+                situsTLDFactory.connect(anotherUser).createTld(
                     ".web3", // TLD
                     "WEB3", // symbol
                     signer.address, // TLD owner
@@ -71,7 +71,7 @@ describe("BasinTLDFactory", function () {
                         value: tldPrice, // pay 1 ETH for the TLD
                     },
                 ),
-            ).to.emit(basinTLDFactory, "TldCreated");
+            ).to.emit(situsTLDFactory, "TldCreated");
 
             // get another user's balance AFTER (should be smaller by 1 ETH + gas)
             const balanceUserAfter = await hre.ethers.provider.getBalance(anotherUser.address);
@@ -86,21 +86,21 @@ describe("BasinTLDFactory", function () {
             expect(balSigAft - balSigBef).to.equal(1); // diff: 1 ETH exactly
 
             // get TLD from array by index
-            const firstTld = await basinTLDFactory.tlds(0);
+            const firstTld = await situsTLDFactory.tlds(0);
             expect(firstTld).to.equal(".web3");
 
             // get TLD address by name
-            const firstTldAddress = await basinTLDFactory.tldNamesAddresses(".web3");
+            const firstTldAddress = await situsTLDFactory.tldNamesAddresses(".web3");
             expect(firstTldAddress.startsWith("0x")).to.be.true;
         });
 
         it("should fail to create a new valid TLD if Buying TLDs disabled", async function () {
-            const { basinTLDFactory, signer } = await loadFixture(deployBasinTLDFactoryFixture);
-            const price = await basinTLDFactory.price();
+            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            const price = await situsTLDFactory.price();
             expect(price).to.equal(tldPrice);
 
             await expect(
-                basinTLDFactory.createTld(
+                situsTLDFactory.createTld(
                     ".web3", // TLD
                     "WEB3", // symbol
                     signer.address, // TLD owner
@@ -114,14 +114,14 @@ describe("BasinTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if payment is too low", async function () {
-            const { basinTLDFactory, signer } = await loadFixture(deployBasinTLDFactoryFixture);
-            await basinTLDFactory.toggleBuyingTlds(); // enable buying TLDs
+            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
-            const price = await basinTLDFactory.price();
+            const price = await situsTLDFactory.price();
             expect(price).to.equal(tldPrice);
 
             await expect(
-                basinTLDFactory.createTld(
+                situsTLDFactory.createTld(
                     ".web3", // TLD
                     "WEB3", // symbol
                     signer.address, // TLD owner
@@ -135,14 +135,14 @@ describe("BasinTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if more than 1 dot in the name", async function () {
-            const { basinTLDFactory, signer } = await loadFixture(deployBasinTLDFactoryFixture);
-            await basinTLDFactory.toggleBuyingTlds(); // enable buying TLDs
+            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
-            const price = await basinTLDFactory.price();
+            const price = await situsTLDFactory.price();
             expect(price).to.equal(tldPrice);
 
             await expect(
-                basinTLDFactory.createTld(
+                situsTLDFactory.createTld(
                     ".web.3", // TLD
                     "WEB3", // symbol
                     signer.address, // TLD owner
@@ -156,14 +156,14 @@ describe("BasinTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if no dot in the name", async function () {
-            const { basinTLDFactory, signer } = await loadFixture(deployBasinTLDFactoryFixture);
-            await basinTLDFactory.toggleBuyingTlds(); // enable buying TLDs
+            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
-            const price = await basinTLDFactory.price();
+            const price = await situsTLDFactory.price();
             expect(price).to.equal(tldPrice);
 
             await expect(
-                basinTLDFactory.createTld(
+                situsTLDFactory.createTld(
                     "web3", // TLD
                     "WEB3", // symbol
                     signer.address, // TLD owner
@@ -177,14 +177,14 @@ describe("BasinTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if name does not start with dot", async function () {
-            const { basinTLDFactory, signer } = await loadFixture(deployBasinTLDFactoryFixture);
-            await basinTLDFactory.toggleBuyingTlds(); // enable buying TLDs
+            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
-            const price = await basinTLDFactory.price();
+            const price = await situsTLDFactory.price();
             expect(price).to.equal(tldPrice);
 
             await expect(
-                basinTLDFactory.createTld(
+                situsTLDFactory.createTld(
                     "web.3", // TLD
                     "WEB3", // symbol
                     signer.address, // TLD owner
@@ -198,14 +198,14 @@ describe("BasinTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if name is of length 1", async function () {
-            const { basinTLDFactory, signer } = await loadFixture(deployBasinTLDFactoryFixture);
-            await basinTLDFactory.toggleBuyingTlds(); // enable buying TLDs
+            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
-            const price = await basinTLDFactory.price();
+            const price = await situsTLDFactory.price();
             expect(price).to.equal(tldPrice);
 
             await expect(
-                basinTLDFactory.createTld(
+                situsTLDFactory.createTld(
                     ".", // TLD
                     "WEB3", // symbol
                     signer.address, // TLD owner
@@ -219,14 +219,14 @@ describe("BasinTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD with empty name", async function () {
-            const { basinTLDFactory, signer } = await loadFixture(deployBasinTLDFactoryFixture);
-            await basinTLDFactory.toggleBuyingTlds(); // enable buying TLDs
+            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
-            const price = await basinTLDFactory.price();
+            const price = await situsTLDFactory.price();
             expect(price).to.equal(tldPrice);
 
             await expect(
-                basinTLDFactory.createTld(
+                situsTLDFactory.createTld(
                     "", // TLD
                     "WEB3", // symbol
                     signer.address, // TLD owner
@@ -240,15 +240,15 @@ describe("BasinTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if TLD already exists", async function () {
-            const { basinTLDFactory, signer } = await loadFixture(deployBasinTLDFactoryFixture);
-            await basinTLDFactory.toggleBuyingTlds(); // enable buying TLDs
+            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
-            const price = await basinTLDFactory.price();
+            const price = await situsTLDFactory.price();
             expect(price).to.equal(tldPrice);
 
             // create a valid TLD
             await expect(
-                basinTLDFactory.createTld(
+                situsTLDFactory.createTld(
                     ".web3", // TLD
                     "WEB3", // symbol
                     signer.address, // TLD owner
@@ -258,11 +258,11 @@ describe("BasinTLDFactory", function () {
                         value: tldPrice, // pay 1 ETH for the TLD
                     },
                 ),
-            ).to.emit(basinTLDFactory, "TldCreated");
+            ).to.emit(situsTLDFactory, "TldCreated");
 
             // try to create a TLD with the same name
             await expect(
-                basinTLDFactory.createTld(
+                situsTLDFactory.createTld(
                     ".web3", // TLD
                     "WEB3", // symbol
                     signer.address, // TLD owner
@@ -276,15 +276,15 @@ describe("BasinTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if TLD name is too long", async function () {
-            const { basinTLDFactory, signer } = await loadFixture(deployBasinTLDFactoryFixture);
-            await basinTLDFactory.toggleBuyingTlds(); // enable buying TLDs
+            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
-            const price = await basinTLDFactory.price();
+            const price = await situsTLDFactory.price();
             expect(price).to.equal(tldPrice);
 
             // try to create a TLD with the same name
             await expect(
-                basinTLDFactory.createTld(
+                situsTLDFactory.createTld(
                     ".web3dfferopfmeomeriovneriovneriovndferfgergf", // TLD
                     "WEB3", // symbol
                     signer.address, // TLD owner
@@ -298,15 +298,15 @@ describe("BasinTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if TLD name is forbidden", async function () {
-            const { basinTLDFactory, signer } = await loadFixture(deployBasinTLDFactoryFixture);
-            await basinTLDFactory.toggleBuyingTlds(); // enable buying TLDs
+            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
-            const price = await basinTLDFactory.price();
+            const price = await situsTLDFactory.price();
             expect(price).to.equal(tldPrice);
 
             // try to create a TLD that's on the forbidden list
             await expect(
-                basinTLDFactory.createTld(
+                situsTLDFactory.createTld(
                     ".com", // TLD
                     "COM", // symbol
                     signer.address, // TLD owner
