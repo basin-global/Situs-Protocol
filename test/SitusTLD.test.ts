@@ -207,15 +207,6 @@ describe("SitusTLD", function () {
             expect(firstDomainDataBefore.name).to.equal(newDomainName);
             expect(firstDomainDataBefore.holder).to.equal(signer.address);
 
-            // transfer domain from signer to another user
-            /*
-            await expect(situsTLD.transferFrom(
-              signer.address, // from
-              anotherUser.address, // to
-              tokenId // token ID
-            )).to.emit(situsTLD, "Transfer");
-            */
-
             const tx = await situsTLD.transferFrom(
                 // this approach is better for getting gasUsed value from receipt
                 signer.address, // from
