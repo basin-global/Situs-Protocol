@@ -37,8 +37,8 @@ const config: HardhatUserConfig = {
       },
       baseTestnet: {
         ...sharedNetworkConfig,
-        url: 'https://base-goerli.public.blastapi.io',
-        chainId: 84531,
+        url: 'https://sepolia.base.org',
+        chainId: 84532,
         gas: "auto", // gas limit
         gasPrice: 1000000000, // 1 gwei
       }
@@ -60,10 +60,10 @@ const config: HardhatUserConfig = {
         },
         {
           network: "baseTestnet",
-          chainId: 84531,
+          chainId: 84532,
           urls: {
-            apiURL: "https://base-goerli.blockscout.com/api", // TODO: point to Sepolia
-            browserURL: "https://base-goerli.blockscout.com" // TODO: point to Sepolia
+            apiURL: "https://api-sepolia.basescan.org/api",
+            browserURL: "https://sepolia.basescan.org/"
           }
         }
       ]
