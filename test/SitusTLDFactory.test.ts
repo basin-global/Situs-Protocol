@@ -8,7 +8,7 @@ describe("SitusTLDFactory", function () {
 
     // Fixture
     async function deploySitusTLDFactoryFixture() {
-        const [signer, anotherUser] = await hre.ethers.getSigners();
+        const [admin, tldOwner] = await hre.ethers.getSigners();
 
         const SitusMetadataStore = await hre.ethers.getContractFactory("SitusMetadataStore");
         const situsMetadataStore = await SitusMetadataStore.deploy();
@@ -28,7 +28,7 @@ describe("SitusTLDFactory", function () {
         await situsForbiddenTLDs.addFactoryAddress(situsTLDFactoryAddress);
         await situsResolverNonUpgradable.addFactoryAddress(situsTLDFactoryAddress);
 
-        return { situsTLDFactory, situsForbiddenTLDs, signer, anotherUser };
+        return { situsTLDFactory, situsForbiddenTLDs, admin, tldOwner };
     }
 
     describe("Deployment", function () {
@@ -50,21 +50,21 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should create a new valid TLD", async function () {
-            const { situsTLDFactory, signer, anotherUser } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin, tldOwner } = await loadFixture(deploySitusTLDFactoryFixture);
             await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
             const price = await situsTLDFactory.price();
             expect(price).to.equal(tldPrice);
 
-            // get user&signer balances BEFORE
-            const balanceSignerBefore = await hre.ethers.provider.getBalance(signer.address); // signer is the factory owner
-            const balanceUserBefore = await hre.ethers.provider.getBalance(anotherUser.address);
+            // get user&admin balances BEFORE
+            const balanceAdminBefore = await hre.ethers.provider.getBalance(admin.address); // admin is the factory owner
+            const balanceTldOwnerBefore = await hre.ethers.provider.getBalance(tldOwner.address);
 
             await expect(
-                situsTLDFactory.connect(anotherUser).createTld(
+                situsTLDFactory.connect(tldOwner).createTld(
                     ".web3", // TLD
                     "WEB3", // symbol
-                    signer.address, // TLD owner
+                    admin.address, // TLD owner
                     ethers.parseUnits("0.2", 1), // domain price
                     false, // buying enabled
                     {
@@ -74,15 +74,15 @@ describe("SitusTLDFactory", function () {
             ).to.emit(situsTLDFactory, "TldCreated");
 
             // get another user's balance AFTER (should be smaller by 1 ETH + gas)
-            const balanceUserAfter = await hre.ethers.provider.getBalance(anotherUser.address);
-            const balUsrBef = Number(ethers.formatEther(balanceUserBefore));
-            const balUsrAft = Number(ethers.formatEther(balanceUserAfter));
+            const balanceTldOwnerAfter = await hre.ethers.provider.getBalance(tldOwner.address);
+            const balUsrBef = Number(ethers.formatEther(balanceTldOwnerBefore));
+            const balUsrAft = Number(ethers.formatEther(balanceTldOwnerAfter));
             expect(balUsrBef - balUsrAft).to.be.greaterThan(1); // diff: 1 ETH + gas
 
-            // get signer's balance after (should be bigger by exactly 1 ETH)
-            const balanceSignerAfter = await hre.ethers.provider.getBalance(signer.address);
-            const balSigBef = Number(ethers.formatEther(balanceSignerBefore));
-            const balSigAft = Number(ethers.formatEther(balanceSignerAfter));
+            // get admin's balance after (should be bigger by exactly 1 ETH)
+            const balanceAdminAfter = await hre.ethers.provider.getBalance(admin.address);
+            const balSigBef = Number(ethers.formatEther(balanceAdminBefore));
+            const balSigAft = Number(ethers.formatEther(balanceAdminAfter));
             expect(balSigAft - balSigBef).to.equal(1); // diff: 1 ETH exactly
 
             // get TLD from array by index
@@ -95,7 +95,7 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if Buying TLDs disabled", async function () {
-            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             const price = await situsTLDFactory.price();
             expect(price).to.equal(tldPrice);
 
@@ -103,7 +103,7 @@ describe("SitusTLDFactory", function () {
                 situsTLDFactory.createTld(
                     ".web3", // TLD
                     "WEB3", // symbol
-                    signer.address, // TLD owner
+                    admin.address, // TLD owner
                     ethers.parseUnits("0.2", "ether"), // domain price
                     false, // buying enabled
                     {
@@ -114,7 +114,7 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if payment is too low", async function () {
-            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
             const price = await situsTLDFactory.price();
@@ -124,7 +124,7 @@ describe("SitusTLDFactory", function () {
                 situsTLDFactory.createTld(
                     ".web3", // TLD
                     "WEB3", // symbol
-                    signer.address, // TLD owner
+                    admin.address, // TLD owner
                     ethers.parseUnits("0.2", "ether"), // domain price
                     false, // buying enabled
                     {
@@ -135,7 +135,7 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if more than 1 dot in the name", async function () {
-            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
             const price = await situsTLDFactory.price();
@@ -145,7 +145,7 @@ describe("SitusTLDFactory", function () {
                 situsTLDFactory.createTld(
                     ".web.3", // TLD
                     "WEB3", // symbol
-                    signer.address, // TLD owner
+                    admin.address, // TLD owner
                     ethers.parseUnits("0.2", "ether"), // domain price
                     false, // buying enabled
                     {
@@ -156,7 +156,7 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if no dot in the name", async function () {
-            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
             const price = await situsTLDFactory.price();
@@ -166,7 +166,7 @@ describe("SitusTLDFactory", function () {
                 situsTLDFactory.createTld(
                     "web3", // TLD
                     "WEB3", // symbol
-                    signer.address, // TLD owner
+                    admin.address, // TLD owner
                     ethers.parseUnits("0.2", "ether"), // domain price
                     false, // buying enabled
                     {
@@ -177,7 +177,7 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if name does not start with dot", async function () {
-            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
             const price = await situsTLDFactory.price();
@@ -187,7 +187,7 @@ describe("SitusTLDFactory", function () {
                 situsTLDFactory.createTld(
                     "web.3", // TLD
                     "WEB3", // symbol
-                    signer.address, // TLD owner
+                    admin.address, // TLD owner
                     ethers.parseUnits("0.2", "ether"), // domain price
                     false, // buying enabled
                     {
@@ -198,7 +198,7 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if name is of length 1", async function () {
-            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
             const price = await situsTLDFactory.price();
@@ -208,7 +208,7 @@ describe("SitusTLDFactory", function () {
                 situsTLDFactory.createTld(
                     ".", // TLD
                     "WEB3", // symbol
-                    signer.address, // TLD owner
+                    admin.address, // TLD owner
                     ethers.parseUnits("0.2", "ether"), // domain price
                     false, // buying enabled
                     {
@@ -219,7 +219,7 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD with empty name", async function () {
-            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
             const price = await situsTLDFactory.price();
@@ -229,7 +229,7 @@ describe("SitusTLDFactory", function () {
                 situsTLDFactory.createTld(
                     "", // TLD
                     "WEB3", // symbol
-                    signer.address, // TLD owner
+                    admin.address, // TLD owner
                     ethers.parseUnits("0.2", "ether"), // domain price
                     false, // buying enabled
                     {
@@ -240,7 +240,7 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if TLD already exists", async function () {
-            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
             const price = await situsTLDFactory.price();
@@ -251,7 +251,7 @@ describe("SitusTLDFactory", function () {
                 situsTLDFactory.createTld(
                     ".web3", // TLD
                     "WEB3", // symbol
-                    signer.address, // TLD owner
+                    admin.address, // TLD owner
                     ethers.parseUnits("0.2", "ether"), // domain price
                     false, // buying enabled
                     {
@@ -265,7 +265,7 @@ describe("SitusTLDFactory", function () {
                 situsTLDFactory.createTld(
                     ".web3", // TLD
                     "WEB3", // symbol
-                    signer.address, // TLD owner
+                    admin.address, // TLD owner
                     ethers.parseUnits("0.2", "ether"), // domain price
                     false, // buying enabled
                     {
@@ -276,7 +276,7 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if TLD name is too long", async function () {
-            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
             const price = await situsTLDFactory.price();
@@ -287,7 +287,7 @@ describe("SitusTLDFactory", function () {
                 situsTLDFactory.createTld(
                     ".web3dfferopfmeomeriovneriovneriovndferfgergf", // TLD
                     "WEB3", // symbol
-                    signer.address, // TLD owner
+                    admin.address, // TLD owner
                     ethers.parseUnits("0.2", "ether"), // domain price
                     false, // buying enabled
                     {
@@ -298,7 +298,7 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if TLD name is forbidden", async function () {
-            const { situsTLDFactory, signer } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             await situsTLDFactory.toggleBuyingTlds(); // enable buying TLDs
 
             const price = await situsTLDFactory.price();
@@ -309,7 +309,7 @@ describe("SitusTLDFactory", function () {
                 situsTLDFactory.createTld(
                     ".com", // TLD
                     "COM", // symbol
-                    signer.address, // TLD owner
+                    admin.address, // TLD owner
                     ethers.parseUnits("0.2", "ether"), // domain price
                     false, // buying enabled
                     {

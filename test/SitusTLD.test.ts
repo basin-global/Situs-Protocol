@@ -31,7 +31,7 @@ describe("SitusTLD", function () {
 
     // Fixture
     async function deploySitusTLDFixture() {
-        const [signer, anotherUser, referrer] = await hre.ethers.getSigners();
+        const [admin, tldOwner, user, referrer] = await hre.ethers.getSigners();
 
         const SitusMetadataStore = await hre.ethers.getContractFactory("SitusMetadataStore");
         const situsMetadataStore = await SitusMetadataStore.deploy();
@@ -51,7 +51,7 @@ describe("SitusTLD", function () {
         const situsTLD = await SitusTLD.deploy(
             domainName,
             domainSymbol,
-            signer.address, // TLD owner
+            tldOwner.address, // TLD owner
             domainPrice,
             false, // buying enabled
             domainRoyalty,
@@ -59,7 +59,7 @@ describe("SitusTLD", function () {
             situsMetadataStoreAddress,
         );
 
-        return { situsTLD, situsMetadataStore, signer, anotherUser, referrer };
+        return { situsTLD, situsMetadataStore, admin, tldOwner, user, referrer };
     }
 
     describe("Deployment", function () {
@@ -78,8 +78,8 @@ describe("SitusTLD", function () {
         });
 
         it("should create a new valid domain", async function () {
-            const { situsTLD, signer, anotherUser, referrer } = await loadFixture(deploySitusTLDFixture);
-            await situsTLD.toggleBuyingDomains(); // enable buying domains
+            const { situsTLD, tldOwner, user, referrer } = await loadFixture(deploySitusTLDFixture);
+            await situsTLD.connect(tldOwner).toggleBuyingDomains(); // enable buying domains
 
             const price = await situsTLD.price();
             expect(price).to.equal(domainPrice);
@@ -94,7 +94,7 @@ describe("SitusTLD", function () {
 
             const tx = await situsTLD.mint(
                 newDomainName, // domain name (without TLD)
-                signer.address, // domain owner
+                tldOwner.address, // domain owner
                 referrer.address, // referrer is set, so 0.1 ETH referral fee will go to referrers address
                 {
                     value: domainPrice, // pay  for the domain
@@ -123,7 +123,7 @@ describe("SitusTLD", function () {
             // get domain data by domain name
             const firstDomainData = await situsTLD.domains(newDomainName);
             expect(firstDomainData.name).to.equal(newDomainName);
-            expect(firstDomainData.holder).to.equal(signer.address);
+            expect(firstDomainData.holder).to.equal(tldOwner.address);
             expect(firstDomainData.tokenId).to.equal(1);
 
             // mint another domain
@@ -147,9 +147,9 @@ describe("SitusTLD", function () {
             expect(secondDomainData.tokenId).to.equal(2);
 
             // mint a 1-letter domain
-            await situsTLD.connect(anotherUser).mint(
+            await situsTLD.connect(user).mint(
                 "a", // domain name (without TLD)
-                anotherUser.address, // domain owner
+                user.address, // domain owner
                 ethers.ZeroAddress, // no referrer in this case
                 {
                     value: domainPrice, // pay  for the domain
@@ -163,7 +163,7 @@ describe("SitusTLD", function () {
             // get domain data by domain name
             const aDomainData = await situsTLD.domains("a");
             expect(aDomainData.name).to.equal("a");
-            expect(aDomainData.holder).to.equal(anotherUser.address);
+            expect(aDomainData.holder).to.equal(user.address);
             expect(aDomainData.tokenId).to.equal(3);
 
             // fail at minting an empty domain
@@ -171,7 +171,7 @@ describe("SitusTLD", function () {
                 situsTLD.mint(
                     // this approach is better for getting gasUsed value from receipt
                     "", // empty domain name (without TLD)
-                    anotherUser.address, // domain owner
+                    user.address, // domain owner
                     referrer.address, // referrer is set, so 0.1 ETH referral fee will go to referrers address
                     {
                         value: domainPrice, // pay  for the domain
@@ -181,8 +181,8 @@ describe("SitusTLD", function () {
         });
 
         it("should transfer domain to another user", async function () {
-            const { situsTLD, signer, anotherUser } = await loadFixture(deploySitusTLDFixture);
-            await situsTLD.toggleBuyingDomains(); // enable buying domains
+            const { situsTLD, tldOwner, user } = await loadFixture(deploySitusTLDFixture);
+            await situsTLD.connect(tldOwner).toggleBuyingDomains(); // enable buying domains
 
             const newDomainName = "techie";
             const tokenId = 1;
@@ -190,7 +190,7 @@ describe("SitusTLD", function () {
             await expect(
                 situsTLD.mint(
                     newDomainName, // domain name (without TLD)
-                    signer.address, // domain owner
+                    tldOwner.address, // domain owner
                     ethers.ZeroAddress,
                     {
                         value: domainPrice, // pay  for the domain
@@ -200,17 +200,17 @@ describe("SitusTLD", function () {
 
             // get owner
             const domainOwnerBefore = await situsTLD.ownerOf(tokenId);
-            expect(domainOwnerBefore).to.equal(signer.address);
+            expect(domainOwnerBefore).to.equal(tldOwner.address);
 
             // get domain data by domain name
             const firstDomainDataBefore = await situsTLD.domains(newDomainName);
             expect(firstDomainDataBefore.name).to.equal(newDomainName);
-            expect(firstDomainDataBefore.holder).to.equal(signer.address);
+            expect(firstDomainDataBefore.holder).to.equal(tldOwner.address);
 
-            const tx = await situsTLD.transferFrom(
+            const tx = await situsTLD.connect(tldOwner).transferFrom(
                 // this approach is better for getting gasUsed value from receipt
-                signer.address, // from
-                anotherUser.address, // to
+                tldOwner.address, // from
+                user.address, // to
                 tokenId, // token ID
             );
 
@@ -222,25 +222,25 @@ describe("SitusTLD", function () {
             expect(event).is.not.empty;
 
             // get default name (after)
-            const defaultNameAfterSigner = await situsTLD.defaultNames(signer.address);
+            const defaultNameAfterSigner = await situsTLD.defaultNames(tldOwner.address);
             expect(defaultNameAfterSigner).to.be.empty;
 
-            const defaultNameAfterAnother = await situsTLD.defaultNames(anotherUser.address);
+            const defaultNameAfterAnother = await situsTLD.defaultNames(user.address);
             expect(defaultNameAfterAnother).to.equal(newDomainName);
 
             // get owner
             const domainOwnerAfter = await situsTLD.ownerOf(tokenId);
-            expect(domainOwnerAfter).to.equal(anotherUser.address);
+            expect(domainOwnerAfter).to.equal(user.address);
 
             // get domain data by domain name
             const firstDomainDataAfter = await situsTLD.domains(newDomainName);
             expect(firstDomainDataAfter.name).to.equal(newDomainName);
-            expect(firstDomainDataAfter.holder).to.equal(anotherUser.address);
+            expect(firstDomainDataAfter.holder).to.equal(user.address);
         });
 
         it("should change default domain", async function () {
-            const { situsTLD, signer, anotherUser } = await loadFixture(deploySitusTLDFixture);
-            await situsTLD.toggleBuyingDomains(); // enable buying domains
+            const { situsTLD, tldOwner, user } = await loadFixture(deploySitusTLDFixture);
+            await situsTLD.connect(tldOwner).toggleBuyingDomains(); // enable buying domains
 
             const price = await situsTLD.price();
             expect(price).to.equal(domainPrice);
@@ -251,7 +251,7 @@ describe("SitusTLD", function () {
             await expect(
                 situsTLD.mint(
                     newDomainName, // domain name (without TLD)
-                    signer.address, // domain owner
+                    tldOwner.address, // domain owner
                     ethers.ZeroAddress,
                     {
                         value: domainPrice, // pay  for the domain
@@ -260,7 +260,7 @@ describe("SitusTLD", function () {
             ).to.emit(situsTLD, "DomainCreated");
 
             // get default name (before)
-            const defaultNameBefore = await situsTLD.defaultNames(signer.address);
+            const defaultNameBefore = await situsTLD.defaultNames(tldOwner.address);
             expect(defaultNameBefore).to.equal(newDomainName);
 
             const anotherDomainName = "tempe";
@@ -269,7 +269,7 @@ describe("SitusTLD", function () {
             await expect(
                 situsTLD.mint(
                     anotherDomainName, // domain name (without TLD)
-                    signer.address, // domain owner
+                    tldOwner.address, // domain owner
                     ethers.ZeroAddress,
                     {
                         value: domainPrice, // pay  for the domain
@@ -278,27 +278,27 @@ describe("SitusTLD", function () {
             ).to.emit(situsTLD, "DomainCreated");
 
             // get default name (after 1)
-            const defaultNameAfter = await situsTLD.defaultNames(signer.address);
+            const defaultNameAfter = await situsTLD.defaultNames(tldOwner.address);
             expect(defaultNameAfter).to.equal(newDomainName); // default domain name should remain the first domain (techie)
 
             // change default domain to tempe
-            await expect(situsTLD.editDefaultDomain(anotherDomainName)).to.emit(situsTLD, "DefaultDomainChanged");
+            await expect(situsTLD.connect(tldOwner).editDefaultDomain(anotherDomainName)).to.emit(situsTLD, "DefaultDomainChanged");
 
             // get default name (after change)
-            const defaultNameAfterChange = await situsTLD.defaultNames(signer.address);
+            const defaultNameAfterChange = await situsTLD.defaultNames(tldOwner.address);
             expect(defaultNameAfterChange).to.equal(anotherDomainName); // default domain name should change to tempe
 
             // fail at changing default domain if msg.sender is not domain holder
             await expect(
-                situsTLD.connect(anotherUser).editDefaultDomain(
+                situsTLD.connect(user).editDefaultDomain(
                     newDomainName, // trying to change back to techie (but msg.sender is not domain holder)
                 ),
             ).to.be.revertedWith("You do not own the selected domain");
         });
 
         it("should change domain data", async function () {
-            const { situsTLD, signer, anotherUser } = await loadFixture(deploySitusTLDFixture);
-            await situsTLD.toggleBuyingDomains(); // enable buying domains
+            const { situsTLD, tldOwner, user } = await loadFixture(deploySitusTLDFixture);
+            await situsTLD.connect(tldOwner).toggleBuyingDomains(); // enable buying domains
 
             const price = await situsTLD.price();
             expect(price).to.equal(domainPrice);
@@ -309,7 +309,7 @@ describe("SitusTLD", function () {
             await expect(
                 situsTLD.mint(
                     newDomainName, // domain name (without TLD)
-                    signer.address, // domain owner
+                    tldOwner.address, // domain owner
                     ethers.ZeroAddress,
                     {
                         value: domainPrice, // pay  for the domain
@@ -324,7 +324,7 @@ describe("SitusTLD", function () {
             const newData = "{'description': 'This is my NEW domain description'}";
 
             // set new data
-            const tx = await situsTLD.editData(
+            const tx = await situsTLD.connect(tldOwner).editData(
                 newDomainName, // domain name (without TLD)
                 newData,
             );
@@ -342,7 +342,7 @@ describe("SitusTLD", function () {
 
             // fail at changing data if msg.sender is not domain holder
             await expect(
-                situsTLD.connect(anotherUser).editData(
+                situsTLD.connect(user).editData(
                     newDomainName, // domain name (without TLD)
                     "No change",
                 ),
@@ -350,8 +350,8 @@ describe("SitusTLD", function () {
         });
 
         it("should change metadata", async function () {
-            const { situsTLD, situsMetadataStore, signer, anotherUser } = await loadFixture(deploySitusTLDFixture);
-            await situsTLD.toggleBuyingDomains(); // enable buying domains
+            const { situsTLD, situsMetadataStore, tldOwner, user } = await loadFixture(deploySitusTLDFixture);
+            await situsTLD.connect(tldOwner).toggleBuyingDomains(); // enable buying domains
 
             const price = await situsTLD.price();
             expect(price).to.equal(domainPrice);
@@ -362,7 +362,7 @@ describe("SitusTLD", function () {
             await expect(
                 situsTLD.mint(
                     newDomainName, // domain name (without TLD)
-                    signer.address, // domain owner
+                    tldOwner.address, // domain owner
                     ethers.ZeroAddress,
                     {
                         value: domainPrice, // pay  for the domain
@@ -384,7 +384,7 @@ describe("SitusTLD", function () {
             // change description in the metadata contract
             const newDesc = "The best top-level domain";
 
-            await situsMetadataStore.changeDescription(situsTLD.getAddress(), newDesc);
+            await situsMetadataStore.connect(tldOwner).changeDescription(situsTLD.getAddress(), newDesc);
 
             // get domain metadata
             const domainMetadata2 = await situsTLD.tokenURI(domainData.tokenId);
@@ -394,22 +394,21 @@ describe("SitusTLD", function () {
             expect(mdResult2.description).to.equal(newDesc);
 
             // fail at changing metadata description if sender is not TLD owner
-            await expect(situsMetadataStore.connect(anotherUser).changeDescription(situsTLD.getAddress(), newDesc)).to.be.revertedWith(
+            await expect(situsMetadataStore.connect(user).changeDescription(situsTLD.getAddress(), newDesc)).to.be.revertedWith(
                 "Sender not TLD owner",
             );
         });
 
         it("should create a new valid domain, but with non-ascii letters input", async function () {
-            const { situsTLD, signer, referrer } = await loadFixture(deploySitusTLDFixture);
-            await situsTLD.toggleBuyingDomains(); // enable buying domains
+            const { situsTLD, tldOwner, referrer } = await loadFixture(deploySitusTLDFixture);
+            await situsTLD.connect(tldOwner).toggleBuyingDomains(); // enable buying domains
 
             const price = await situsTLD.price();
             expect(price).to.equal(domainPrice);
 
             const newDomainName = "poɯSnᴉǝ";
 
-            // TODO set domainPrice value here
-            const tx = await situsTLD.mint(newDomainName, signer.address, referrer.address, { value: domainPrice });
+            const tx = await situsTLD.mint(newDomainName, tldOwner.address, referrer.address, { value: domainPrice });
 
             const receipt = await tx.wait();
 
@@ -427,13 +426,13 @@ describe("SitusTLD", function () {
         });
 
         it("should mint a token and burn it and mint it again", async function () {
-            const { situsTLD, signer, referrer } = await loadFixture(deploySitusTLDFixture);
-            await situsTLD.toggleBuyingDomains(); // enable buying domains
+            const { situsTLD, tldOwner, referrer } = await loadFixture(deploySitusTLDFixture);
+            await situsTLD.connect(tldOwner).toggleBuyingDomains(); // enable buying domains
 
             const totalSupplyBeforeMint = await situsTLD.totalSupply();
             expect(totalSupplyBeforeMint).to.equal(0);
 
-            const balanceBeforeMint = await situsTLD.balanceOf(signer.address);
+            const balanceBeforeMint = await situsTLD.balanceOf(tldOwner.address);
             expect(balanceBeforeMint).to.equal(0);
 
             const getDomainNameBeforeMint = await situsTLD.domainIdsNames(1); // token ID 1
@@ -444,12 +443,12 @@ describe("SitusTLD", function () {
 
             // MINT DOMAIN
 
-            const newDomainName = "signer";
+            const newDomainName = "admin";
 
             await situsTLD.mint(
                 // this approach is better for getting gasUsed value from receipt
                 newDomainName, // domain name (without TLD)
-                signer.address, // domain owner
+                tldOwner.address, // domain owner
                 referrer.address, // referrer is set, so 0.1 ETH referral fee will go to referrers address
                 {
                     value: domainPrice, // pay  for the domain
@@ -459,13 +458,13 @@ describe("SitusTLD", function () {
             const totalSupplyAfterMint = await situsTLD.totalSupply();
             expect(totalSupplyAfterMint).to.equal(1);
 
-            const balanceAfterMint = await situsTLD.balanceOf(signer.address);
+            const balanceAfterMint = await situsTLD.balanceOf(tldOwner.address);
             expect(balanceAfterMint).to.equal(1);
 
             const getDomainDataAfterMint = await situsTLD.domains(newDomainName);
             expect(getDomainDataAfterMint.name).to.equal(newDomainName);
             expect(getDomainDataAfterMint.tokenId).to.equal(1);
-            expect(getDomainDataAfterMint.holder).to.equal(signer.address);
+            expect(getDomainDataAfterMint.holder).to.equal(tldOwner.address);
             expect(getDomainDataAfterMint.data).to.equal("");
 
             const getDomainNameAfterMint = await situsTLD.domainIdsNames(1);
@@ -473,7 +472,7 @@ describe("SitusTLD", function () {
 
             // BURN DOMAIN
 
-            const tx = await situsTLD.burn(newDomainName);
+            const tx = await situsTLD.connect(tldOwner).burn(newDomainName);
 
             const receipt = await tx.wait();
 
@@ -485,7 +484,7 @@ describe("SitusTLD", function () {
             const totalSupplyAfterBurn = await situsTLD.totalSupply();
             expect(totalSupplyAfterBurn).to.equal(0);
 
-            const balanceAfterBurn = await situsTLD.balanceOf(signer.address);
+            const balanceAfterBurn = await situsTLD.balanceOf(tldOwner.address);
             expect(balanceAfterBurn).to.equal(0);
 
             const getDomainDataAfterBurn = await situsTLD.domains(newDomainName);
@@ -497,7 +496,7 @@ describe("SitusTLD", function () {
             const getDomainNameAfterBurn = await situsTLD.domainIdsNames(1);
             expect(getDomainNameAfterBurn).to.equal(""); // should be empty
 
-            const getDefaultDomainNameAfterBurn = await situsTLD.defaultNames(signer.address);
+            const getDefaultDomainNameAfterBurn = await situsTLD.defaultNames(tldOwner.address);
             expect(getDefaultDomainNameAfterBurn).to.equal(""); // should be empty
 
             // MINT AGAIN
@@ -505,7 +504,7 @@ describe("SitusTLD", function () {
             await situsTLD.mint(
                 // this approach is better for getting gasUsed value from receipt
                 newDomainName, // domain name (without TLD)
-                signer.address, // domain owner
+                tldOwner.address, // domain owner
                 referrer.address, // referrer is set, so 0.1 ETH referral fee will go to referrers address
                 {
                     value: domainPrice, // pay  for the domain
@@ -515,13 +514,13 @@ describe("SitusTLD", function () {
             const totalSupplyAfterMintAgain = await situsTLD.totalSupply();
             expect(totalSupplyAfterMintAgain).to.equal(1);
 
-            const balanceAfterMintAgain = await situsTLD.balanceOf(signer.address);
+            const balanceAfterMintAgain = await situsTLD.balanceOf(tldOwner.address);
             expect(balanceAfterMintAgain).to.equal(1);
 
             const getDomainDataAfterMintAgain = await situsTLD.domains(newDomainName);
             expect(getDomainDataAfterMintAgain.name).to.equal(newDomainName);
             expect(getDomainDataAfterMintAgain.tokenId).to.equal(2); // token ID is now 2, because burned IDs still count as used
-            expect(getDomainDataAfterMintAgain.holder).to.equal(signer.address);
+            expect(getDomainDataAfterMintAgain.holder).to.equal(tldOwner.address);
             expect(getDomainDataAfterMintAgain.data).to.equal("");
 
             // token ID 1 still burned
@@ -534,8 +533,8 @@ describe("SitusTLD", function () {
         });
 
         it("should mint multiple tokens, burn one and mint it again", async function () {
-            const { situsTLD, signer, anotherUser, referrer } = await loadFixture(deploySitusTLDFixture);
-            await situsTLD.toggleBuyingDomains(); // enable buying domains
+            const { situsTLD, tldOwner, user, referrer } = await loadFixture(deploySitusTLDFixture);
+            await situsTLD.connect(tldOwner).toggleBuyingDomains(); // enable buying domains
 
             const totalSupplyBeforeMint = await situsTLD.totalSupply();
             expect(totalSupplyBeforeMint).to.equal(0);
@@ -543,7 +542,7 @@ describe("SitusTLD", function () {
             const idCounterBeforeMint = await situsTLD.idCounter();
             expect(idCounterBeforeMint).to.equal(1);
 
-            const balanceBeforeMint = await situsTLD.balanceOf(signer.address);
+            const balanceBeforeMint = await situsTLD.balanceOf(tldOwner.address);
             expect(balanceBeforeMint).to.equal(0);
 
             const getDomainNameBeforeMint = await situsTLD.domainIdsNames(1);
@@ -554,14 +553,14 @@ describe("SitusTLD", function () {
 
             // MINT 3 DOMAINs
 
-            const newDomainName1 = "signer";
-            const newDomainName2 = "anotheruser";
+            const newDomainName1 = "tldowner";
+            const newDomainName2 = "user";
             const newDomainName3 = "referrer";
 
             await situsTLD.mint(
                 // this approach is better for getting gasUsed value from receipt
                 newDomainName1, // domain name (without TLD)
-                signer.address, // domain owner
+                tldOwner.address, // domain owner
                 referrer.address, // referrer is set, so 0.1 ETH referral fee will go to referrers address
                 {
                     value: domainPrice, // pay  for the domain
@@ -571,7 +570,7 @@ describe("SitusTLD", function () {
             await situsTLD.mint(
                 // this approach is better for getting gasUsed value from receipt
                 newDomainName2, // domain name (without TLD)
-                anotherUser.address, // domain owner
+                user.address, // domain owner
                 referrer.address, // referrer is set, so 0.1 ETH referral fee will go to referrers address
                 {
                     value: domainPrice, // pay  for the domain
@@ -594,16 +593,16 @@ describe("SitusTLD", function () {
             const idCounterAfterMint = await situsTLD.idCounter();
             expect(idCounterAfterMint).to.equal(4); // 3 token IDs has been created. The next domain will have ID 4.
 
-            const balanceAfterMint = await situsTLD.balanceOf(signer.address);
+            const balanceAfterMint = await situsTLD.balanceOf(tldOwner.address);
             expect(balanceAfterMint).to.equal(1);
 
-            const balanceAfterMint2 = await situsTLD.balanceOf(anotherUser.address);
+            const balanceAfterMint2 = await situsTLD.balanceOf(user.address);
             expect(balanceAfterMint2).to.equal(1);
 
             const balanceAfterMint3 = await situsTLD.balanceOf(referrer.address);
             expect(balanceAfterMint3).to.equal(1);
 
-            const getDefaultDomainAfterMint = await situsTLD.defaultNames(anotherUser.address);
+            const getDefaultDomainAfterMint = await situsTLD.defaultNames(user.address);
             expect(getDefaultDomainAfterMint).to.equal(newDomainName2);
 
             const getDomainDataAfterMint = await situsTLD.domains(newDomainName1);
@@ -612,7 +611,7 @@ describe("SitusTLD", function () {
             const getDomainDataAfterMint2 = await situsTLD.domains(newDomainName2);
             expect(getDomainDataAfterMint2.name).to.equal(newDomainName2);
             expect(getDomainDataAfterMint2.tokenId).to.equal(2);
-            expect(getDomainDataAfterMint2.holder).to.equal(anotherUser.address);
+            expect(getDomainDataAfterMint2.holder).to.equal(user.address);
             expect(getDomainDataAfterMint2.data).to.equal("");
 
             const getDomainNameAfterMint = await situsTLD.domainIdsNames(2);
@@ -623,7 +622,7 @@ describe("SitusTLD", function () {
                 situsTLD.mint(
                     // this approach is better for getting gasUsed value from receipt
                     newDomainName2, // domain name (without TLD)
-                    anotherUser.address, // domain owner
+                    user.address, // domain owner
                     referrer.address, // referrer is set, so 0.1 ETH referral fee will go to referrers address
                     {
                         value: domainPrice, // pay  for the domain
@@ -634,7 +633,7 @@ describe("SitusTLD", function () {
             // set domain data
             const domainDataString = "{'url': 'https://ethereum.org'}";
 
-            await situsTLD.connect(anotherUser).editData(newDomainName2, domainDataString);
+            await situsTLD.connect(user).editData(newDomainName2, domainDataString);
 
             // check domain data before burn
             const domainDataBeforeBurn = await situsTLD.getDomainData(newDomainName2);
@@ -642,7 +641,7 @@ describe("SitusTLD", function () {
 
             // BURN DOMAIN
 
-            const tx = await situsTLD.connect(anotherUser).burn(newDomainName2);
+            const tx = await situsTLD.connect(user).burn(newDomainName2);
 
             const receipt = await tx.wait();
 
@@ -661,18 +660,18 @@ describe("SitusTLD", function () {
             const domainDataAfterBurn = await situsTLD.getDomainData(newDomainName2);
             expect(domainDataAfterBurn).to.equal("");
 
-            const balanceAfterBurn = await situsTLD.balanceOf(signer.address);
+            const balanceAfterBurn = await situsTLD.balanceOf(tldOwner.address);
             expect(balanceAfterBurn).to.equal(1);
 
-            const balanceAfterBurn1 = await situsTLD.balanceOf(anotherUser.address);
+            const balanceAfterBurn1 = await situsTLD.balanceOf(user.address);
             expect(balanceAfterBurn1).to.equal(0);
 
             const balanceAfterBurn2 = await situsTLD.balanceOf(referrer.address);
             expect(balanceAfterBurn2).to.equal(1);
 
             const getDomainDataAfterBurn = await situsTLD.domains(newDomainName1);
-            expect(getDomainDataAfterBurn.holder).to.equal(signer.address);
-            expect(getDomainDataAfterBurn.name).to.equal("signer");
+            expect(getDomainDataAfterBurn.holder).to.equal(tldOwner.address);
+            expect(getDomainDataAfterBurn.name).to.equal("tldowner");
             expect(getDomainDataAfterBurn.data).to.equal("");
             expect(getDomainDataAfterBurn.tokenId).to.equal(1);
 
@@ -689,7 +688,7 @@ describe("SitusTLD", function () {
             expect(getDomainDataAfterBurn3.tokenId).to.equal(3);
 
             const getDomainNameAfterBurn = await situsTLD.domainIdsNames(1);
-            expect(getDomainNameAfterBurn).to.equal("signer");
+            expect(getDomainNameAfterBurn).to.equal("tldowner");
 
             const getDomainNameAfterBurn2 = await situsTLD.domainIdsNames(2);
             expect(getDomainNameAfterBurn2).to.equal(""); // should be empty
@@ -702,7 +701,7 @@ describe("SitusTLD", function () {
             await situsTLD.mint(
                 // this approach is better for getting gasUsed value from receipt
                 newDomainName2, // domain name (without TLD)
-                anotherUser.address, // domain owner
+                user.address, // domain owner
                 referrer.address, // referrer is set, so 0.1 ETH referral fee will go to referrers address
                 {
                     value: domainPrice, // pay  for the domain
@@ -715,10 +714,10 @@ describe("SitusTLD", function () {
             const idCounterAfterMintAgain = await situsTLD.idCounter();
             expect(idCounterAfterMintAgain).to.equal(5);
 
-            const balanceAfterMintAgain = await situsTLD.balanceOf(signer.address);
+            const balanceAfterMintAgain = await situsTLD.balanceOf(tldOwner.address);
             expect(balanceAfterMintAgain).to.equal(1);
 
-            const balanceAfterMintAgain2 = await situsTLD.balanceOf(anotherUser.address);
+            const balanceAfterMintAgain2 = await situsTLD.balanceOf(user.address);
             expect(balanceAfterMintAgain2).to.equal(1);
 
             const balanceAfterMintAgain3 = await situsTLD.balanceOf(referrer.address);
@@ -727,7 +726,7 @@ describe("SitusTLD", function () {
             const getDomainDataAfterMintAgain = await situsTLD.domains(newDomainName2);
             expect(getDomainDataAfterMintAgain.name).to.equal(newDomainName2);
             expect(getDomainDataAfterMintAgain.tokenId).to.equal(4); // token ID is now 4, because burned IDs still count as used
-            expect(getDomainDataAfterMintAgain.holder).to.equal(anotherUser.address);
+            expect(getDomainDataAfterMintAgain.holder).to.equal(user.address);
             expect(getDomainDataAfterMintAgain.data).to.equal("");
 
             // token ID 2 still burned

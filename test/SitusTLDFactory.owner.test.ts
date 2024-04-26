@@ -8,7 +8,7 @@ describe("SitusTLDFactory", function () {
 
     // Fixture
     async function deploySitusTLDFactoryFixture() {
-        const [owner, otherAccount] = await hre.ethers.getSigners();
+        const [admin, otherAccount] = await hre.ethers.getSigners();
 
         const SitusMetadataStore = await hre.ethers.getContractFactory("SitusMetadataStore");
         const situsMetadataStore = await SitusMetadataStore.deploy();
@@ -28,7 +28,7 @@ describe("SitusTLDFactory", function () {
         await situsForbiddenTLDs.addFactoryAddress(situsTLDFactoryAddress);
         await situsResolverNonUpgradable.addFactoryAddress(situsTLDFactoryAddress);
 
-        return { situsTLDFactory, situsForbiddenTLDs, owner, otherAccount };
+        return { situsTLDFactory, situsForbiddenTLDs, admin, otherAccount };
     }
 
     describe("Deployment", function () {
@@ -44,12 +44,12 @@ describe("SitusTLDFactory", function () {
         const tldSymbol = ".BASIN";
         const domainPrice = ethers.parseUnits("0.0001", "ether");
 
-        it("should create a new valid TLD through ownerCreateTld()", async function () {
-            const { situsTLDFactory, owner } = await loadFixture(deploySitusTLDFactoryFixture);
-            await situsTLDFactory.ownerCreateTld(tldName, tldSymbol, owner.address, domainPrice, false);
+        it("should create a new valid TLD through adminCreateTld()", async function () {
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
+            await situsTLDFactory.ownerCreateTld(tldName, tldSymbol, admin.address, domainPrice, false);
         });
 
-        it("should fail to create a new valid TLD if user is not owner", async function () {
+        it("should fail to create a new valid TLD if user is not admin", async function () {
             const { situsTLDFactory, otherAccount } = await loadFixture(deploySitusTLDFactoryFixture);
             await expect(
                 situsTLDFactory.connect(otherAccount).ownerCreateTld(
@@ -63,12 +63,12 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if more than 1 dot in the name", async function () {
-            const { situsTLDFactory, owner } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             await expect(
                 situsTLDFactory.ownerCreateTld(
                     ".ba.sin", // Invalid TLD
                     tldSymbol,
-                    owner.address,
+                    admin.address,
                     domainPrice,
                     false, // buying enabled
                 ),
@@ -76,12 +76,12 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if no dot in the name", async function () {
-            const { situsTLDFactory, owner } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             await expect(
                 situsTLDFactory.ownerCreateTld(
                     "situs", // Invalid TLD
                     tldSymbol,
-                    owner.address,
+                    admin.address,
                     domainPrice,
                     false, // buying enabled
                 ),
@@ -89,12 +89,12 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if name does not start with dot", async function () {
-            const { situsTLDFactory, owner } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             await expect(
                 situsTLDFactory.ownerCreateTld(
                     "bas.in", // Invalid TLD
                     tldSymbol,
-                    owner.address,
+                    admin.address,
                     domainPrice,
                     false, // buying enabled
                 ),
@@ -102,12 +102,12 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if name is of length 1", async function () {
-            const { situsTLDFactory, owner } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             await expect(
                 situsTLDFactory.ownerCreateTld(
                     ".", // Invalid TLD
                     tldSymbol,
-                    owner.address,
+                    admin.address,
                     domainPrice,
                     false, // buying enabled
                 ),
@@ -115,12 +115,12 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD with empty name", async function () {
-            const { situsTLDFactory, owner } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             await expect(
                 situsTLDFactory.ownerCreateTld(
                     "", // Invalid TLD
                     tldSymbol,
-                    owner.address,
+                    admin.address,
                     domainPrice,
                     false, // buying enabled
                 ),
@@ -128,26 +128,26 @@ describe("SitusTLDFactory", function () {
         });
 
         it("should fail to create a new valid TLD if TLD already exists", async function () {
-            const { situsTLDFactory, owner } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             // create a valid TLD
-            await expect(situsTLDFactory.ownerCreateTld(tldName, tldSymbol, owner.address, domainPrice, false)).to.emit(
+            await expect(situsTLDFactory.ownerCreateTld(tldName, tldSymbol, admin.address, domainPrice, false)).to.emit(
                 situsTLDFactory,
                 "TldCreated",
             );
 
             // try to create another TLD with the same name
-            await expect(situsTLDFactory.ownerCreateTld(tldName, tldSymbol, owner.address, domainPrice, false)).to.be.revertedWith(
+            await expect(situsTLDFactory.ownerCreateTld(tldName, tldSymbol, admin.address, domainPrice, false)).to.be.revertedWith(
                 "TLD already exists or forbidden",
             );
         });
 
         it("should fail to create a new valid TLD if TLD name is too long", async function () {
-            const { situsTLDFactory, owner } = await loadFixture(deploySitusTLDFactoryFixture);
+            const { situsTLDFactory, admin } = await loadFixture(deploySitusTLDFactoryFixture);
             await expect(
                 situsTLDFactory.ownerCreateTld(
                     ".situs3dfferopfmeomeriovneriovneriovndferfgergf", // Invalid TLD
                     tldSymbol,
-                    owner.address,
+                    admin.address,
                     domainPrice,
                     false,
                 ),
