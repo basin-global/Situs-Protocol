@@ -2,5 +2,10 @@
 pragma solidity ^0.8.4;
 
 interface ISitusMetadataStore {
-    function getMetadata(string calldata _domainName, string calldata _tld, uint256 _tokenId) external view returns (string memory);
+    function getMetadata(
+        address _tldAddress,
+        string calldata _domainName,
+        string calldata _tld,
+        uint256 _tokenId
+    ) external view returns (string memory);
 }

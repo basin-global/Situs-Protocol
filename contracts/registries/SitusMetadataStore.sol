@@ -4,6 +4,8 @@ pragma solidity ^0.8.4;
 import {Base64} from "base64-sol/base64.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ISitusMetadataStore} from "./interfaces/ISitusMetadataStore.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {strings} from "../lib/strings.sol";
 
 /// @title Situs TLD Metadata contract
 /// @author Tempe Techie
@@ -18,8 +20,15 @@ contract SitusMetadataStore is ISitusMetadataStore {
 
     // READ
     // solhint-disable-next-line no-unused-vars
-    function getMetadata(string calldata _domainName, string calldata _tld, uint256 _tokenId) public view returns (string memory) {
+    function getMetadata(
+        address _tldAddress,
+        string calldata _domainName,
+        string calldata _tld,
+        uint256 _tokenId
+    ) public view returns (string memory) {
         string memory fullDomainName = string(abi.encodePacked(_domainName, _tld));
+        uint256 domainLength = strings.len(strings.toSlice(_domainName));
+        string memory animationUrl = getAnimationUrl(_tldAddress, _tokenId);
 
         return
             string(
@@ -35,6 +44,14 @@ contract SitusMetadataStore is ISitusMetadataStore {
                                 '"description": "',
                                 descriptions[msg.sender],
                                 '", ',
+                                '"attributes": [',
+                                '{"trait_type": "length", "value": "',
+                                Strings.toString(domainLength),
+                                '"}'
+                                "], ",
+                                '"animation_url": "',
+                                animationUrl,
+                                '", ',
                                 '"image": "',
                                 _getImage(fullDomainName, brands[msg.sender]),
                                 '"}'
@@ -42,6 +59,20 @@ contract SitusMetadataStore is ISitusMetadataStore {
                             )
                         )
                     )
+                )
+            );
+    }
+
+    function getAnimationUrl(address _tldAddress, uint256 _tokenId) public view returns (string memory) {
+        return
+            string(
+                abi.encodePacked(
+                    "https://iframe-tokenbound.vercel.app/",
+                    Strings.toHexString(uint256(uint160(_tldAddress)), 20),
+                    "/",
+                    Strings.toString(_tokenId),
+                    "/",
+                    Strings.toString(block.chainid)
                 )
             );
     }
@@ -54,10 +85,10 @@ contract SitusMetadataStore is ISitusMetadataStore {
                         /* solhint-disable quotes */
                         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">',
                         '<defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">',
-                        '<stop offset="0%" style="stop-color:rgb(68,67,241);stop-opacity:1" />',
-                        '<stop offset="100%" style="stop-color:rgb(144,85,247);stop-opacity:1" /></linearGradient></defs>',
+                        '<stop offset="0%" style="stop-color:black;stop-opacity:1" />',
+                        '<stop offset="100%" style="stop-color:rgb(43, 43, 43);stop-opacity:1" /></linearGradient></defs>',
                         '<rect x="0" y="0" width="500" height="500" fill="url(#grad)"/>',
-                        '<text x="50%" y="50%" dominant-baseline="middle" fill="white" text-anchor="middle" font-size="x-large">',
+                        '<text x="50%" y="50%" dominant-baseline="middle" fill="white" text-anchor="middle" font-family="monospace" font-size="24px" font-weight="bold">',
                         _fullDomainName,
                         '</text><text x="50%" y="70%" dominant-baseline="middle" fill="white" text-anchor="middle">',
                         _brandName,
