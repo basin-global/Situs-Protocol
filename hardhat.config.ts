@@ -43,7 +43,15 @@ const config: HardhatUserConfig = {
         gasPrice: 1000000000, // 1 gwei
       }
     },
-  solidity: "0.8.24",
+  solidity: {
+    version: "0.8.24",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200
+      }
+    }
+  },
     etherscan: {
       apiKey: { // all possible key names here: https://gist.github.com/tempe-techie/95a3ad4e81b46c895928a0524fc2b7ac
         base: BASESCAN_API_KEY,
