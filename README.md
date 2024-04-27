@@ -133,6 +133,15 @@ Start a new terminal and execute:
 npm run deploy localhost
 ```
 
+## Deploy Contracts to Base Testnet
+
+Make sure .env has PRIMARY_KEY (or MNEMONIC) and BASESCAN_API_KEY values filled in. *Never* share your PRIMARY_KEY or MNEMONIC with anyone (or check into a repo).
+
+Start a new terminal and execute:
+```bash
+npm run deploy baseTestnet
+```
+
 ## Add Base Sepolia to Metamask
 
 - Name	Sepolia
