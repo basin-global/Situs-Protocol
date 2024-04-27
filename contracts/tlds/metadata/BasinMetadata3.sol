@@ -51,7 +51,7 @@ contract BasinMetadata3 is OwnableWithManagers {
             );
     }
 
-    function getAnimationUrl(uint256 _tokenId) public view returns (string memory) {
+    function getAnimationUrl(uint256 _tokenId) public pure returns (string memory) {
         return
             string(
                 abi.encodePacked(

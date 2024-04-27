@@ -72,7 +72,7 @@ describe("SitusTLDFactory", function () {
                     domainPrice,
                     false, // buying enabled
                 ),
-            ).to.be.revertedWith("Name must have 1 dot");
+            ).to.be.revertedWithCustomError(situsTLDFactory, "MustHaveOneDot");
         });
 
         it("should fail to create a new valid TLD if no dot in the name", async function () {
@@ -85,7 +85,7 @@ describe("SitusTLDFactory", function () {
                     domainPrice,
                     false, // buying enabled
                 ),
-            ).to.be.revertedWith("Name must have 1 dot");
+            ).to.be.revertedWithCustomError(situsTLDFactory, "MustHaveOneDot");
         });
 
         it("should fail to create a new valid TLD if name does not start with dot", async function () {
@@ -98,7 +98,7 @@ describe("SitusTLDFactory", function () {
                     domainPrice,
                     false, // buying enabled
                 ),
-            ).to.be.revertedWith("Name must start with dot");
+            ).to.be.revertedWithCustomError(situsTLDFactory, "MustStartWithDot");
         });
 
         it("should fail to create a new valid TLD if name is of length 1", async function () {
@@ -111,7 +111,7 @@ describe("SitusTLDFactory", function () {
                     domainPrice,
                     false, // buying enabled
                 ),
-            ).to.be.revertedWith("TLD too short");
+            ).to.be.revertedWithCustomError(situsTLDFactory, "TLDTooShort");
         });
 
         it("should fail to create a new valid TLD with empty name", async function () {
@@ -124,7 +124,7 @@ describe("SitusTLDFactory", function () {
                     domainPrice,
                     false, // buying enabled
                 ),
-            ).to.be.revertedWith("TLD too short");
+            ).to.be.revertedWithCustomError(situsTLDFactory, "TLDTooShort");
         });
 
         it("should fail to create a new valid TLD if TLD already exists", async function () {
@@ -136,9 +136,9 @@ describe("SitusTLDFactory", function () {
             );
 
             // try to create another TLD with the same name
-            await expect(situsTLDFactory.ownerCreateTld(tldName, tldSymbol, admin.address, domainPrice, false)).to.be.revertedWith(
-                "TLD already exists or forbidden",
-            );
+            await expect(
+                situsTLDFactory.ownerCreateTld(tldName, tldSymbol, admin.address, domainPrice, false),
+            ).to.be.revertedWithCustomError(situsTLDFactory, "ExistsOrForbidden");
         });
 
         it("should fail to create a new valid TLD if TLD name is too long", async function () {
@@ -151,7 +151,7 @@ describe("SitusTLDFactory", function () {
                     domainPrice,
                     false,
                 ),
-            ).to.be.revertedWith("TLD too long");
+            ).to.be.revertedWithCustomError(situsTLDFactory, "TLDTooLong");
         });
 
         it("should change the TLD price", async function () {

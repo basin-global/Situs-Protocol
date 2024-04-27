@@ -17,8 +17,10 @@ contract SitusForbiddenTLDs is ISitusForbiddenTLDs, Ownable {
     event FactoryAddressAdded(address indexed sender, address indexed fAddress);
     event FactoryAddressRemoved(address indexed sender, address indexed fAddress);
 
+    error NotFactoryAddr();
+
     modifier onlyFactory() {
-        require(factoryAddresses[msg.sender] == true, "Caller is not a factory address.");
+        if (!factoryAddresses[msg.sender]) revert NotFactoryAddr();
         _;
     }
 

@@ -28,6 +28,16 @@ contract SitusTLDFactory is ISitusTLDFactory, Ownable, ReentrancyGuard {
     event TldCreated(address indexed user, address indexed owner, string tldName, address tldAddress);
     event ChangeTldPrice(address indexed user, uint256 tldPrice);
 
+    error TLDTooShort();
+    error TLDTooLong();
+    error MustHaveOneDot();
+    error MustHaveNoSpaces();
+    error MustStartWithDot();
+    error ExistsOrForbidden();
+    error Disabled();
+    error ValueBelowPrice();
+    error PaymentFailed();
+
     constructor(uint256 _price, address _forbiddenTlds, address _metadataAddress) {
         price = _price;
         forbiddenTlds = _forbiddenTlds;
@@ -40,15 +50,14 @@ contract SitusTLDFactory is ISitusTLDFactory, Ownable, ReentrancyGuard {
     }
 
     function _validTldName(string memory _name) internal view {
-        // ex-modifier turned into internal function to optimize contract size
-        require(strings.len(strings.toSlice(_name)) > 1, "TLD too short"); // at least two chars, which is a dot and a letter
-        require(bytes(_name).length < nameMaxLength, "TLD too long");
-        require(strings.count(strings.toSlice(_name), strings.toSlice(".")) == 1, "Name must have 1 dot");
-        require(strings.count(strings.toSlice(_name), strings.toSlice(" ")) == 0, "Name must have no spaces");
-        require(strings.startsWith(strings.toSlice(_name), strings.toSlice(".")) == true, "Name must start with dot");
+        if (strings.len(strings.toSlice(_name)) <= 1) revert TLDTooShort();
+        if (bytes(_name).length >= nameMaxLength) revert TLDTooLong();
+        if (strings.count(strings.toSlice(_name), strings.toSlice(".")) != 1) revert MustHaveOneDot();
+        if (strings.count(strings.toSlice(_name), strings.toSlice(" ")) != 0) revert MustHaveNoSpaces();
+        if (strings.startsWith(strings.toSlice(_name), strings.toSlice(".")) == false) revert MustStartWithDot();
 
         ISitusForbiddenTLDs forbidden = ISitusForbiddenTLDs(forbiddenTlds);
-        require(forbidden.isTldForbidden(_name) == false, "TLD already exists or forbidden");
+        if (forbidden.isTldForbidden(_name)) revert ExistsOrForbidden();
     }
 
     // WRITE
@@ -63,12 +72,11 @@ contract SitusTLDFactory is ISitusTLDFactory, Ownable, ReentrancyGuard {
         uint256 _domainPrice,
         bool _buyingEnabled
     ) external payable override nonReentrant returns (address) {
-        require(buyingEnabled == true, "Buying TLDs disabled");
-        require(msg.value >= price, "Value below price");
+        if (!buyingEnabled) revert Disabled();
+        if (msg.value < price) revert ValueBelowPrice();
 
         (bool sent, ) = payable(owner()).call{value: address(this).balance}("");
-        require(sent, "Failed to send TLD payment to factory owner");
-
+        if (!sent) revert PaymentFailed();
         return _createTld(_name, _symbol, _tldOwner, _domainPrice, _buyingEnabled);
     }
 

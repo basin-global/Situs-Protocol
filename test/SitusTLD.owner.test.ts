@@ -102,7 +102,7 @@ describe("SitusTLD", function () {
                         value: domainPrice, // pay  for the domain
                     },
                 ),
-            ).to.be.revertedWith("Buying domains disabled");
+            ).to.be.revertedWithCustomError(situsTLD, "BuyingDisabled");
         });
 
         it("should fail to create a new valid domain if buying is disabled forever", async function () {
@@ -137,7 +137,7 @@ describe("SitusTLD", function () {
                         value: domainPrice, // pay  for the domain
                     },
                 ),
-            ).to.be.revertedWith("Domain minting disabled forever");
+            ).to.be.revertedWithCustomError(situsTLD, "DisabledForever");
 
             await expect(
                 situsTLD.connect(user).mint(
@@ -148,7 +148,7 @@ describe("SitusTLD", function () {
                         value: domainPrice, // pay  for the domain
                     },
                 ),
-            ).to.be.revertedWith("Domain minting disabled forever");
+            ).to.be.revertedWithCustomError(situsTLD, "DisabledForever");
         });
 
         it("should change the price of a domain, fail if not tld owner", async function () {
@@ -189,10 +189,10 @@ describe("SitusTLD", function () {
             expect(referralBefore).to.equal(1000); // 10% by default
 
             // if referral fee is set to 50%, the tx should fail
-            await expect(situsTLD.connect(tldOwner).changeReferralFee(5000)).to.be.revertedWith("Referral fee cannot be 50% or higher");
+            await expect(situsTLD.connect(tldOwner).changeReferralFee(5000)).to.be.revertedWithCustomError(situsTLD, "TooHigh");
 
             // if referral fee is set to higher than 50%, the tx should fail
-            await expect(situsTLD.connect(tldOwner).changeReferralFee(8000)).to.be.revertedWith("Referral fee cannot be 50% or higher");
+            await expect(situsTLD.connect(tldOwner).changeReferralFee(8000)).to.be.revertedWithCustomError(situsTLD, "TooHigh");
 
             const referralAfter = await situsTLD.referral();
             expect(referralAfter).to.equal(1000); // should remain the same as before
@@ -242,7 +242,7 @@ describe("SitusTLD", function () {
             expect(royaltyAfter).to.equal(10);
 
             // if user is not owner, the tx should revert
-            await expect(situsTLD.connect(user).changeRoyalty(20)).to.be.revertedWith("Sender is not royalty fee updater");
+            await expect(situsTLD.connect(user).changeRoyalty(20)).to.be.revertedWithCustomError(situsTLD, "NotRoyaltyFeeUpdater");
         });
 
         it("should change metadata contract address and then freeze it", async function () {
@@ -262,8 +262,9 @@ describe("SitusTLD", function () {
 
             await situsTLD.connect(tldOwner).freezeMetadata();
 
-            await expect(situsTLD.connect(tldOwner).changeMetadataAddress(situsMetadataStore.getAddress())).to.be.revertedWith(
-                "Cannot change metadata address anymore",
+            await expect(situsTLD.connect(tldOwner).changeMetadataAddress(situsMetadataStore.getAddress())).to.be.revertedWithCustomError(
+                situsTLD,
+                "MetadataFrozen",
             );
         });
     });

@@ -24,6 +24,8 @@ contract SitusResolverNonUpgradable is Ownable {
     event DeprecatedTldRemoved(address user, address tAddr);
     event CustomDefaultDomainSet(address user, string dName, string dTld);
 
+    error NotDomainOwner();
+
     // READ
 
     // reverse resolver: get user's default name for a given TLD
@@ -240,7 +242,7 @@ contract SitusResolverNonUpgradable is Ownable {
     function setCustomDefaultDomain(string memory _domainName, string memory _tld) external {
         if (bytes(_domainName).length > 0 && bytes(_tld).length > 0) {
             // set a custom default domain
-            require(getDomainHolder(_domainName, _tld) == _msgSender(), "You do not own this domain.");
+            if (getDomainHolder(_domainName, _tld) != _msgSender()) revert NotDomainOwner();
 
             customDefaultDomain[_msgSender()] = [_domainName, _tld];
             emit CustomDefaultDomainSet(_msgSender(), _domainName, _tld);

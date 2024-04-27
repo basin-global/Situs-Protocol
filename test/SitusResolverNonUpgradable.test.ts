@@ -589,9 +589,9 @@ describe("SitusResolverNonUpgradable", function () {
             const defaultFirstDomainViaResolverAfter = await situsResolverNonUpgradable.getFirstDefaultDomain(tldOwner.address);
             expect(defaultFirstDomainViaResolverAfter).to.equal(domainName2 + ".wagmi");
 
-            await expect(situsResolverNonUpgradable.connect(tldOwner).setCustomDefaultDomain("admin", ".wagmi")).to.be.revertedWith(
-                "You do not own this domain.",
-            );
+            await expect(
+                situsResolverNonUpgradable.connect(tldOwner).setCustomDefaultDomain("admin", ".wagmi"),
+            ).to.be.revertedWithCustomError(situsResolverNonUpgradable, "NotDomainOwner");
 
             // un-set/remove a custom default domain
             await situsResolverNonUpgradable.connect(tldOwner).setCustomDefaultDomain("", "");

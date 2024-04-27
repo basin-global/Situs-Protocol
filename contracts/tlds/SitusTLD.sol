@@ -40,6 +40,24 @@ contract SitusTLD is ISitusTLD, ERC721, Ownable, ReentrancyGuard {
 
     event MintingDisabledForever(address user);
 
+    error NotOwner();
+    error OnlyHolderCanEdit();
+    error DisabledForever();
+    error BuyingDisabled();
+    error ValueBelowPrice();
+    error Empty();
+    error TooLong();
+    error NoDots();
+    error NoSpaces();
+    error Exists();
+    error SendRoyaltyFailed();
+    error SendReferralFailed();
+    error SendPaymentFailed();
+    error MetadataFrozen();
+    error TooHigh();
+    error NotRoyaltyFeeUpdater();
+    error NotRoyaltyFeeReceiver();
+
     constructor(
         string memory _name,
         string memory _symbol,
@@ -83,7 +101,7 @@ contract SitusTLD is ISitusTLD, ERC721, Ownable, ReentrancyGuard {
 
     function burn(string calldata _domainName) external {
         string memory dName = strings.lower(_domainName);
-        require(domains[dName].holder == _msgSender(), "You do not own the selected domain");
+        if (domains[dName].holder != _msgSender()) revert NotOwner();
         uint256 tokenId = domains[dName].tokenId;
         delete domainIdsNames[tokenId]; // delete tokenId => domainName mapping
         delete domains[dName]; // delete string => Domain struct mapping
@@ -100,7 +118,7 @@ contract SitusTLD is ISitusTLD, ERC721, Ownable, ReentrancyGuard {
     /// @notice Default domain is the domain name that reverse resolver returns for a given address.
     function editDefaultDomain(string calldata _domainName) external {
         string memory dName = strings.lower(_domainName);
-        require(domains[dName].holder == _msgSender(), "You do not own the selected domain");
+        if (domains[dName].holder != _msgSender()) revert NotOwner();
         defaultNames[_msgSender()] = dName;
         emit DefaultDomainChanged(_msgSender(), dName);
     }
@@ -110,7 +128,7 @@ contract SitusTLD is ISitusTLD, ERC721, Ownable, ReentrancyGuard {
     /// @param _data Custom data needs to be in a JSON object format.
     function editData(string calldata _domainName, string calldata _data) external {
         string memory dName = strings.lower(_domainName);
-        require(domains[dName].holder == _msgSender(), "Only domain holder can edit their data");
+        if (domains[dName].holder != _msgSender()) revert OnlyHolderCanEdit();
         domains[dName].data = _data;
         emit DataChanged(_msgSender(), _domainName);
     }
@@ -123,9 +141,9 @@ contract SitusTLD is ISitusTLD, ERC721, Ownable, ReentrancyGuard {
         address _domainHolder,
         address _referrer
     ) external payable override nonReentrant returns (uint256) {
-        require(!buyingDisabledForever, "Domain minting disabled forever");
-        require(buyingEnabled || _msgSender() == owner() || _msgSender() == minter, "Buying domains disabled");
-        require(msg.value >= price, "Value below price");
+        if (buyingDisabledForever) revert DisabledForever();
+        if (!buyingEnabled && _msgSender() != owner() && _msgSender() != minter) revert BuyingDisabled();
+        if (msg.value < price) revert ValueBelowPrice();
 
         _sendPayment(msg.value, _referrer);
 
@@ -136,11 +154,11 @@ contract SitusTLD is ISitusTLD, ERC721, Ownable, ReentrancyGuard {
         // convert domain name to lowercase (only works for ascii, clients should enforce ascii domains only)
         string memory _domainName = strings.lower(_domainNameRaw);
 
-        require(strings.len(strings.toSlice(_domainName)) > 0, "Domain name empty");
-        require(bytes(_domainName).length < nameMaxLength, "Domain name is too long");
-        require(strings.count(strings.toSlice(_domainName), strings.toSlice(".")) == 0, "There should be no dots in the name");
-        require(strings.count(strings.toSlice(_domainName), strings.toSlice(" ")) == 0, "There should be no spaces in the name");
-        require(domains[_domainName].holder == address(0), "Domain with this name already exists");
+        if (strings.len(strings.toSlice(_domainName)) == 0) revert Empty();
+        if (bytes(_domainName).length >= nameMaxLength) revert TooLong();
+        if (strings.count(strings.toSlice(_domainName), strings.toSlice(".")) > 0) revert NoDots();
+        if (strings.count(strings.toSlice(_domainName), strings.toSlice(" ")) > 0) revert NoSpaces();
+        if (domains[_domainName].holder != address(0)) revert Exists();
 
         _mint(_domainHolder, idCounter);
 
@@ -172,18 +190,18 @@ contract SitusTLD is ISitusTLD, ERC721, Ownable, ReentrancyGuard {
         if (royalty > 0 && royalty < 5000) {
             // send royalty - must be less than 50% (5000 bips)
             (bool sentRoyalty, ) = payable(royaltyFeeReceiver).call{value: ((_paymentAmount * royalty) / 10000)}("");
-            require(sentRoyalty, "Failed to send royalty to factory owner");
+            if (!sentRoyalty) revert SendRoyaltyFailed();
         }
 
         if (_referrer != address(0) && referral > 0 && referral < 5000) {
             // send referral fee - must be less than 50% (5000 bips)
             (bool sentReferralFee, ) = payable(_referrer).call{value: ((_paymentAmount * referral) / 10000)}("");
-            require(sentReferralFee, "Failed to send referral fee");
+            if (!sentReferralFee) revert SendRoyaltyFailed();
         }
 
         // send the rest to TLD owner
         (bool sent, ) = payable(owner()).call{value: address(this).balance}("");
-        require(sent, "Failed to send domain payment to TLD owner");
+        if (!sent) revert SendPaymentFailed();
     }
 
     ///@dev Hook that is called before any token transfer. This includes minting and burning.
@@ -206,7 +224,7 @@ contract SitusTLD is ISitusTLD, ERC721, Ownable, ReentrancyGuard {
 
     /// @notice Only TLD contract owner can call this function.
     function changeMetadataAddress(address _metadataAddress) external onlyOwner {
-        require(!metadataFrozen, "Cannot change metadata address anymore");
+        if (metadataFrozen) revert MetadataFrozen();
         metadataAddress = _metadataAddress;
     }
 
@@ -228,7 +246,7 @@ contract SitusTLD is ISitusTLD, ERC721, Ownable, ReentrancyGuard {
 
     /// @notice Only TLD contract owner can call this function.
     function changeReferralFee(uint256 _referral) external override onlyOwner {
-        require(_referral < 5000, "Referral fee cannot be 50% or higher");
+        if (_referral >= 5000) revert TooHigh();
         referral = _referral; // referral must be in bips
         emit ReferralFeeChanged(_msgSender(), _referral);
     }
@@ -254,21 +272,21 @@ contract SitusTLD is ISitusTLD, ERC721, Ownable, ReentrancyGuard {
 
     /// @notice This changes royalty fee in the wrapper contract
     function changeRoyalty(uint256 _royalty) external {
-        require(_royalty <= 5000, "Cannot exceed 50%");
-        require(_msgSender() == royaltyFeeUpdater, "Sender is not royalty fee updater");
+        if (_royalty > 5000) revert TooHigh();
+        if (_msgSender() != royaltyFeeUpdater) revert NotRoyaltyFeeUpdater();
         royalty = _royalty;
         emit TldRoyaltyChanged(_msgSender(), _royalty);
     }
 
     /// @notice This changes royalty fee receiver address.
     function changeRoyaltyFeeReceiver(address _newReceiver) external {
-        require(_msgSender() == royaltyFeeReceiver, "Sender is not royalty fee receiver");
+        if (_msgSender() != royaltyFeeReceiver) revert NotRoyaltyFeeReceiver();
         royaltyFeeReceiver = _newReceiver;
     }
 
     /// @notice This changes royalty fee updater address.
     function changeRoyaltyFeeUpdater(address _newUpdater) external {
-        require(_msgSender() == royaltyFeeUpdater, "Sender is not royalty fee updater");
+        if (_msgSender() != royaltyFeeUpdater) revert NotRoyaltyFeeUpdater();
         royaltyFeeUpdater = _newUpdater;
     }
 }

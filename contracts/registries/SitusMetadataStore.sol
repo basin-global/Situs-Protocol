@@ -18,6 +18,8 @@ contract SitusMetadataStore is ISitusMetadataStore {
     event BrandChanged(address indexed user, string brand);
     event DescriptionChanged(address indexed user, string description);
 
+    error NotTLDOwner();
+
     // READ
     // solhint-disable-next-line no-unused-vars
     function getMetadata(
@@ -110,14 +112,14 @@ contract SitusMetadataStore is ISitusMetadataStore {
 
     /// @notice Only TLD contract owner can call this function.
     function changeBrand(address _tldAddress, string calldata _brand) external {
-        require(msg.sender == getTldOwner(_tldAddress), "Sender not TLD owner");
+        if (msg.sender != getTldOwner(_tldAddress)) revert NotTLDOwner();
         brands[_tldAddress] = _brand;
         emit BrandChanged(msg.sender, _brand);
     }
 
     /// @notice Only TLD contract owner can call this function.
     function changeDescription(address _tldAddress, string calldata _description) external {
-        require(msg.sender == getTldOwner(_tldAddress), "Sender not TLD owner");
+        if (msg.sender != getTldOwner(_tldAddress)) revert NotTLDOwner();
         descriptions[_tldAddress] = _description;
         emit DescriptionChanged(msg.sender, _description);
     }

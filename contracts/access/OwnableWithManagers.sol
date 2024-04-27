@@ -11,9 +11,12 @@ abstract contract OwnableWithManagers is Ownable {
     address[] public managers; // array of managers
     mapping(address => bool) public isManager; // mapping of managers
 
+    error NotMgrOrOwner();
+    error ManagerAlreadyAdded();
+
     // MODIFIERS
     modifier onlyManagerOrOwner() {
-        require(isManager[msg.sender] || msg.sender == owner(), "OwnableWithManagers: caller is not a manager or owner");
+        if (!isManager[msg.sender] && msg.sender != owner()) revert NotMgrOrOwner();
         _;
     }
 
@@ -55,7 +58,7 @@ abstract contract OwnableWithManagers is Ownable {
     // OWNER
 
     function addManager(address manager_) external onlyOwner {
-        require(!isManager[manager_], "OwnableWithManagers: manager already added");
+        if (isManager[manager_]) revert ManagerAlreadyAdded();
         isManager[manager_] = true;
         managers.push(manager_);
         emit ManagerAdd(msg.sender, manager_);

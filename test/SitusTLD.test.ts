@@ -177,7 +177,7 @@ describe("SitusTLD", function () {
                         value: domainPrice, // pay  for the domain
                     },
                 ),
-            ).to.be.revertedWith("Domain name empty");
+            ).to.be.revertedWithCustomError(situsTLD, "Empty");
         });
 
         it("should transfer domain to another user", async function () {
@@ -293,7 +293,7 @@ describe("SitusTLD", function () {
                 situsTLD.connect(user).editDefaultDomain(
                     newDomainName, // trying to change back to techie (but msg.sender is not domain holder)
                 ),
-            ).to.be.revertedWith("You do not own the selected domain");
+            ).to.be.revertedWithCustomError(situsTLD, "NotOwner");
         });
 
         it("should change domain data", async function () {
@@ -346,7 +346,7 @@ describe("SitusTLD", function () {
                     newDomainName, // domain name (without TLD)
                     "No change",
                 ),
-            ).to.be.revertedWith("Only domain holder can edit their data");
+            ).to.be.revertedWithCustomError(situsTLD, "OnlyHolderCanEdit");
         });
 
         it("should change metadata", async function () {
@@ -394,8 +394,9 @@ describe("SitusTLD", function () {
             expect(mdResult2.description).to.equal(newDesc);
 
             // fail at changing metadata description if sender is not TLD owner
-            await expect(situsMetadataStore.connect(user).changeDescription(situsTLD.getAddress(), newDesc)).to.be.revertedWith(
-                "Sender not TLD owner",
+            await expect(situsMetadataStore.connect(user).changeDescription(situsTLD.getAddress(), newDesc)).to.be.revertedWithCustomError(
+                situsMetadataStore,
+                "NotTLDOwner",
             );
         });
 
@@ -628,7 +629,7 @@ describe("SitusTLD", function () {
                         value: domainPrice, // pay  for the domain
                     },
                 ),
-            ).to.be.revertedWith("Domain with this name already exists");
+            ).to.be.revertedWithCustomError(situsTLD, "Exists");
 
             // set domain data
             const domainDataString = "{'url': 'https://ethereum.org'}";
