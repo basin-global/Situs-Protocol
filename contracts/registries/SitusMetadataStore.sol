@@ -90,8 +90,6 @@ contract SitusMetadataStore is ISitusMetadataStore {
                         '<rect x="0" y="0" width="500" height="500" fill="url(#grad)"/>',
                         '<text x="50%" y="50%" dominant-baseline="middle" fill="white" text-anchor="middle" font-family="monospace" font-size="24px" font-weight="bold">',
                         _fullDomainName,
-                        '</text><text x="50%" y="70%" dominant-baseline="middle" fill="white" text-anchor="middle">',
-                        _brandName,
                         "</text>",
                         "</svg>"
                         /* solhint-enable quotes */
