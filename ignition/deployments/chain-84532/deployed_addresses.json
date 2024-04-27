@@ -1,0 +1,8 @@
+{
+  "SitusTLDModule#SitusForbiddenTLDs": "0x1449810aa2c8B63169c7D5Cc413c4A7B2a1385ae",
+  "SitusTLDModule#SitusMetadataStore": "0xa30e36abeEFbbE380d93bf90814CeCBa2832C42A",
+  "SitusTLDModule#SitusResolverNonUpgradable": "0x960F39b96C7b2860ae0039432442D3c7aeC1ac8a",
+  "SitusTLDModule#SitusTLDFactory": "0x921e9d7DEB91cD223394f590Ddaf2AB72A6e3bad",
+  "SitusTLDModule#BasinTLD": "0x608EdA40bE224d85D79c2b7d274dC4bb75be5eFA",
+  "SitusTLDModule#SitusTLD": "0x07dA57BE8D458F323B449b336530E2107B735A0b"
+}
