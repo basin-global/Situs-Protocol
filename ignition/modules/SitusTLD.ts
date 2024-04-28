@@ -1,4 +1,5 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
+import { parseUnits } from "ethers";
 
 const SitusTLDModule = buildModule("SitusTLDModule", (m) => {
   const deployer = m.getAccount(0);
@@ -37,6 +38,22 @@ const SitusTLDModule = buildModule("SitusTLDModule", (m) => {
   const situsTLDAddress = m.readEventArgument(callNewTLDSitus, "TldCreated", "tldAddress");
   const situsTLDContract = m.contractAt("SitusTLD", situsTLDAddress);
 
+  const price1char = parseUnits("1", "ether");
+  const price2char = parseUnits("0.1", "ether");
+  const price3char = parseUnits("0.03", "ether");
+  const price4char = parseUnits("0.008", "ether");
+  const price5char = parseUnits("0.0002", "ether");
+
+  const situsTLDMinter = m.contract("SitusTLDMinter", [
+    situsTLDContract,
+    price1char,
+    price2char,
+    price3char,
+    price4char,
+    price5char
+  ]);
+  m.call(situsTLDContract, 'changeMinter', [situsTLDMinter]);
+
   const callNewTLDBasin = m.call(situsTLDFactory, 'ownerCreateTld', [
     basinTldName,
     basinTldSymbol,
@@ -49,21 +66,17 @@ const SitusTLDModule = buildModule("SitusTLDModule", (m) => {
   const basinTLDAddress = m.readEventArgument(callNewTLDBasin, "TldCreated", "tldAddress", { id: "ReadAddressBasin"});
   const basinTLDContract = m.contractAt("SitusTLD", basinTLDAddress, { id: "BasinTLD"});
 
-  // Use a custom metadata contract
-  // const basinMetadata3 = m.contract("BasinMetadata3");
-  // const tldRoyalty = "0"; // default price in ETH
-  // const basinTLD = m.contract("SitusTLD", [
-  //   basinTldName,
-  //   basinTldSymbol,
-  //   deployer,
-  //   basinTldDomainPrice,
-  //   false,
-  //   tldRoyalty,
-  //   situsTLDFactory,
-  //   basinMetadata3
-  // ]);
+  const basinTLDMinter = m.contract("BasinTLDMinter", [
+    basinTLDContract,
+    price1char,
+    price2char,
+    price3char,
+    price4char,
+    price5char
+  ]);
+  m.call(basinTLDContract, 'changeMinter', [basinTLDMinter]);
 
-  return { situsMetadataStore, situsForbiddenTLDs, situsResolverNonUpgradable, situsTLDFactory, situsTLDContract, basinTLDContract };
+  return { situsMetadataStore, situsForbiddenTLDs, situsResolverNonUpgradable, situsTLDFactory, situsTLDContract, situsTLDMinter, basinTLDContract, basinTLDMinter };
 });
 
 export default SitusTLDModule;
