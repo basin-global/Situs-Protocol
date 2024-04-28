@@ -153,7 +153,11 @@ If you have deployed but still need run verify for testnet chain:
 npx hardhat ignition verify chain-84532
 ```
 
-Verify SitusTLD and BasinTLD separately since they were created by the factory:
+Verify SitusTLD and BasinTLD separately since they were created by the factory.
+
+Update `tldAddressSitus` and `tldAddressBasin` using the values in `deployed_addresses.json` for the network in `ignition/modules/archive/verify/manualTldVerification.js`.
+
+Update `factoryAddress` and `metadataAddress` using the values in `deployed_addresses.json` for the network in `ignition/modules/archive/verify/argumentsSitus.js` and `ignition/modules/archive/verify/argumentsBasin.js`
 
 ```bash
 npx hardhat run ignition/modules/archive/verify/manualTldVerification.js --network baseTestnet
