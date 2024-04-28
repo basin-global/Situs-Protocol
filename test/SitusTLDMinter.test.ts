@@ -94,7 +94,6 @@ describe("SitusTLDMinter", function () {
     describe("Create TLD Minter", function () {
         it("should create a new valid domain", async function () {
             const { situsTLDMinter, situsTLD, tldOwner, user, referrer } = await loadFixture(deploySitusTLDMinterFixture);
-            // await situsTLD.connect(tldOwner).toggleBuyingDomains(); // enable buying domains
             await situsTLDMinter.connect(tldOwner).togglePaused();
 
             const newDomainName = "techie";
