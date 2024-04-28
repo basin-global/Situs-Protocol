@@ -193,4 +193,5 @@ describe("SitusTLDMinter", function () {
                 ),
             ).to.be.revertedWithCustomError(situsTLD, "Empty");
         });
+    });
 });
