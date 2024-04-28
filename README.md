@@ -139,8 +139,26 @@ Make sure .env has PRIMARY_KEY (or MNEMONIC) and BASESCAN_API_KEY values filled 
 
 Start a new terminal and execute:
 ```bash
+npm run deployandverify baseTestnet
+```
+
+Or, if you only want to deploy and not verify:
+```bash
 npm run deploy baseTestnet
 ```
+
+If you have deployed but still need run verify for testnet chain:
+
+```bash
+npx hardhat ignition verify chain-84532
+```
+
+Verify SitusTLD and BasinTLD separately since they were created by the factory:
+
+```bash
+npx hardhat run ignition/modules/archive/verify/manualTldVerification.js --network baseTestnet
+```
+
 
 ## Add Base Sepolia to Metamask
 

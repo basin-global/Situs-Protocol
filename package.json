@@ -11,6 +11,7 @@
   "scripts": {
     "build": "hardhat compile",
     "deploy": "hardhat ignition deploy ./ignition/modules/SitusTLD.ts --network",
+    "deployandverify": "hardhat ignition deploy ./ignition/modules/SitusTLD.ts --verify --network",
     "test": "hardhat test",
     "lint": "npm run lint:sol && npm run lint:ts",
     "lint:sol": "solhint 'contracts/**/*.sol'",

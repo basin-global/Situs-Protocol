@@ -1,11 +1,14 @@
-// Run: npx hardhat run scripts/factories/flexi/manualTldVerification.js --network baseTestnet
+// Run: npx hardhat run ignition/modules/archive/verify/manualTldVerification.js --network baseTestnet
 
-const tldAddress = "0x4087fb91A1fBdef05761C02714335D232a2Bf3a1";
+const tldAddressSitus = "0x07dA57BE8D458F323B449b336530E2107B735A0b";
+const tldAddressBasin = "0x608EdA40bE224d85D79c2b7d274dC4bb75be5eFA";
 
 async function main() {
-  console.log("Copy the line below and paste it in your terminal to verify the TLD contract on Etherscan:");
+  console.log("Copy the two lines below and paste it in your terminal to verify the TLD contracts on Etherscan:");
   console.log("");
-  console.log("npx hardhat verify --network " + network.name + " --constructor-args scripts/factories/verify/arguments.js " + tldAddress);
+  console.log("npx hardhat verify --network " + network.name + " --constructor-args ignition/modules/archive/verify/argumentsSitus.js " + tldAddressSitus);
+  console.log("");
+  console.log("npx hardhat verify --network " + network.name + " --constructor-args ignition/modules/archive/verify/argumentsBasin.js " + tldAddressBasin);
 }
 
 main()
