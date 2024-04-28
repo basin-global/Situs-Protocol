@@ -76,8 +76,9 @@ describe("SitusTLDMinter", function () {
             price4char,
             price5char,
         );
+        const situsTLDMinterAddress = await situsTLDMinter.getAddress();
 
-        await situsTLD.connect(tldOwner).changeMinter(situsTLDMinter);
+        await situsTLD.connect(tldOwner).changeMinter(situsTLDMinterAddress);
 
         return { situsTLDMinter, situsTLD, situsMetadataStore, admin, tldOwner, user, referrer };
     }
@@ -93,7 +94,7 @@ describe("SitusTLDMinter", function () {
     describe("Create TLD Minter", function () {
         it("should create a new valid domain", async function () {
             const { situsTLDMinter, situsTLD, tldOwner, user, referrer } = await loadFixture(deploySitusTLDMinterFixture);
-            await situsTLD.connect(tldOwner).toggleBuyingDomains(); // enable buying domains
+            // await situsTLD.connect(tldOwner).toggleBuyingDomains(); // enable buying domains
             await situsTLDMinter.connect(tldOwner).togglePaused();
 
             const newDomainName = "techie";
@@ -146,7 +147,7 @@ describe("SitusTLDMinter", function () {
                 referrer.address, // domain owner
                 ethers.ZeroAddress, // no referrer in this case
                 {
-                    value: price5char, // pay  for the domain
+                    value: price5char, // pay for the domain
                 },
             );
 
@@ -192,6 +193,18 @@ describe("SitusTLDMinter", function () {
                     },
                 ),
             ).to.be.revertedWithCustomError(situsTLD, "Empty");
+
+            // mint using the TLD contract directly without minter
+            await expect(
+                    situsTLD.mint(
+                    "third", // domain name (without TLD)
+                    referrer.address, // domain owner
+                    ethers.ZeroAddress, // no referrer in this case
+                    {
+                        value: 0, // pay for the domain
+                    },
+                ),
+            ).to.be.revertedWithCustomError(situsTLD, "BuyingDisabled");
         });
     });
 });
