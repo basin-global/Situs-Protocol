@@ -97,6 +97,10 @@ contract SitusTLD is ISitusTLD, ERC721, Ownable, ReentrancyGuard {
         return ISitusMetadataStore(metadataAddress).getMetadata(address(this), domains[domainIdsNames[_tokenId]].name, name(), _tokenId);
     }
 
+    function tldOwner() public view returns (address) {
+        return owner();
+    }
+
     // WRITE
 
     function burn(string calldata _domainName) external {

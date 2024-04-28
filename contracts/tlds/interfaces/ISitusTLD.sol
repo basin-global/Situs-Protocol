@@ -38,4 +38,10 @@ interface ISitusTLD is IERC721 {
     function changeReferralFee(uint256 _referral) external;
 
     function mint(string memory _domainName, address _domainHolder, address _referrer) external payable returns (uint256);
+
+    function tldOwner() external view returns (address);
+
+    function royaltyFeeReceiver() external view returns (address);
+
+    function royaltyFeeUpdater() external view returns (address);
 }
