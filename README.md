@@ -142,7 +142,7 @@ Start a new terminal and execute:
 npm run deployandverify baseTestnet
 ```
 
-Or, if you only want to deploy and not verify:
+*OR* if you only want to deploy and not verify:
 ```bash
 npm run deploy baseTestnet
 ```
@@ -153,7 +153,7 @@ If you have deployed but still need run verify for testnet chain:
 npx hardhat ignition verify chain-84532
 ```
 
-Verify SitusTLD and BasinTLD separately since they were created by the factory.
+Verify SitusTLD and BasinTLD separately since they were created by the factory using the following steps:
 
 Update `tldAddressSitus` and `tldAddressBasin` using the values in `deployed_addresses.json` for the network in `ignition/modules/archive/verify/manualTldVerification.js`.
 
@@ -162,7 +162,6 @@ Update `factoryAddress` and `metadataAddress` using the values in `deployed_addr
 ```bash
 npx hardhat run ignition/modules/archive/verify/manualTldVerification.js --network baseTestnet
 ```
-
 
 ## Add Base Sepolia to Metamask
 
@@ -174,15 +173,7 @@ npx hardhat run ignition/modules/archive/verify/manualTldVerification.js --netwo
 - Block Explorer	https://sepolia-explorer.base.org
 
 ## TODO
-- Write Hardhat tests
-- Write deployment scripts
-- Deploy to Localhost
-- Deploy to Base Sepolia
-- Verify Sepolia contracts https://hardhat.org/ignition/docs/guides/verify
-- Point frontend to Base Sepolia for testing
-- Deploy to Zora Sepolia Testnet? https://testnet.zora.co/
 - Deploy to Base Mainnet
-- Verify mainnet contracts https://hardhat.org/ignition/docs/guides/verify
 - Point Frontend to Base Mainnet
 
 ## References
