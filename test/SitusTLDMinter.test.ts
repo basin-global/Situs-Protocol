@@ -96,7 +96,7 @@ describe("SitusTLDMinter", function () {
             const { situsTLDMinter, situsTLD, tldOwner, user, referrer } = await loadFixture(deploySitusTLDMinterFixture);
             await situsTLDMinter.connect(tldOwner).togglePaused();
 
-            const newDomainName = "techie";
+            const newDomainName = "first";
 
             // get referrer's balance BEFORE
             const balanceReferrerBefore = await hre.ethers.provider.getBalance(referrer.address);
@@ -104,7 +104,7 @@ describe("SitusTLDMinter", function () {
             const totalSupplyBefore = await situsTLD.totalSupply();
             expect(totalSupplyBefore).to.equal(0);
 
-            const tx = await situsTLDMinter.mint(
+            const tx = await situsTLDMinter.connect(user).mint(
                 newDomainName, // domain name (without TLD)
                 tldOwner.address, // domain owner
                 referrer.address, // referrer is set, so 0.1 ETH referral fee will go to referrers address
@@ -141,7 +141,7 @@ describe("SitusTLDMinter", function () {
             expect(firstDomainData.tokenId).to.equal(1);
 
             // mint another domain
-            await situsTLDMinter.mint(
+            await situsTLDMinter.connect(user).mint(
                 "second", // domain name (without TLD)
                 referrer.address, // domain owner
                 ethers.ZeroAddress, // no referrer in this case
@@ -182,7 +182,7 @@ describe("SitusTLDMinter", function () {
 
             // fail at minting an empty domain
             await expect(
-                situsTLDMinter.mint(
+                situsTLDMinter.connect(user).mint(
                     // this approach is better for getting gasUsed value from receipt
                     "", // empty domain name (without TLD)
                     user.address, // domain owner
@@ -193,9 +193,22 @@ describe("SitusTLDMinter", function () {
                 ),
             ).to.be.revertedWithCustomError(situsTLD, "Empty");
 
+            // fail at minting didn't send enough money for a one character domain
+            await expect(
+                situsTLDMinter.connect(user).mint(
+                    // this approach is better for getting gasUsed value from receipt
+                    "x", // empty domain name (without TLD)
+                    user.address, // domain owner
+                    referrer.address, // referrer is set, so 0.1 ETH referral fee will go to referrers address
+                    {
+                        value: price2char, // pay  for the domain
+                    },
+                ),
+            ).to.be.revertedWithCustomError(situsTLD, "ValueBelowPrice");
+
             // mint using the TLD contract directly without minter
             await expect(
-                    situsTLD.mint(
+                    situsTLD.connect(user).mint(
                     "third", // domain name (without TLD)
                     referrer.address, // domain owner
                     ethers.ZeroAddress, // no referrer in this case
@@ -204,6 +217,20 @@ describe("SitusTLDMinter", function () {
                     },
                 ),
             ).to.be.revertedWithCustomError(situsTLD, "BuyingDisabled");
+
+            // tldOwner mint directly without minter
+            await
+                situsTLD.connect(tldOwner).mint(
+                "fourth", // domain name (without TLD)
+                referrer.address, // domain owner
+                ethers.ZeroAddress, // no referrer in this case
+                {
+                    value: 0, // pay for the domain
+                },
+            );
+
+            const totalSupplyAfterThird = await situsTLD.totalSupply();
+            expect(totalSupplyAfterThird).to.equal(4);
         });
     });
 });
