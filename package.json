@@ -10,7 +10,9 @@
   ],
   "scripts": {
     "build": "hardhat compile",
+    "resetanddeploy": "hardhat ignition deploy ./ignition/modules/SitusTLD.ts --reset --network",
     "deploy": "hardhat ignition deploy ./ignition/modules/SitusTLD.ts --network",
+    "resetdeployandverify": "hardhat ignition deploy ./ignition/modules/SitusTLD.ts --reset --verify --network",
     "deployandverify": "hardhat ignition deploy ./ignition/modules/SitusTLD.ts --verify --network",
     "test": "hardhat test",
     "lint": "npm run lint:sol && npm run lint:ts",

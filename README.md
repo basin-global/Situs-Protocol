@@ -137,6 +137,8 @@ npm run deploy localhost
 
 Make sure .env has PRIMARY_KEY (or MNEMONIC) and BASESCAN_API_KEY values filled in. *Never* share your PRIMARY_KEY or MNEMONIC with anyone (or check into a repo).
 
+If `ignition/deployments/chain-84532` does not exist, run one of these two commands.
+
 Start a new terminal and execute:
 ```bash
 npm run deployandverify baseTestnet
@@ -147,11 +149,29 @@ npm run deployandverify baseTestnet
 npm run deploy baseTestnet
 ```
 
+## Clear Existing Deployment with Reset and Redeploy
+
+If `ignition/deployments/chain-84532` does exist, run one of these two commands to redeploy contracts.
+
+Start a new terminal and execute:
+```bash
+npm run resetdeployandverify baseTestnet
+```
+
+*OR* if you only want to deploy and not verify:
+```bash
+npm run resetanddeploy baseTestnet
+```
+
+## Verify Contracts on Base Testnet
+
 If you have deployed but still need run verify for testnet chain:
 
 ```bash
 npx hardhat ignition verify chain-84532
 ```
+
+## Verify Factory-generated Contracts on Base Testnet
 
 Verify SitusTLD and BasinTLD separately since they were created by the factory using the following steps:
 
