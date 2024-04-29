@@ -82,8 +82,11 @@ If buying is disabled, owner, but not users can mint.
 ```bash
 cp .env.sample .env
 ```
-add PRIVATE_KEY (default) or MNEMONIC
-add BASESCAN_API_KEY
+add `PRIVATE_KEY` (default) or `MNEMONIC`. *Never* share your `PRIMARY_KEY` or `MNEMONIC` with anyone (or check into a repo).
+
+add `BASESCAN_API_KEY`
+
+
 
 ## Install Dependencies
 
@@ -135,7 +138,7 @@ npm run deploy localhost
 
 ## Deploy Contracts to Base Testnet
 
-Make sure .env has PRIMARY_KEY (or MNEMONIC) and BASESCAN_API_KEY values filled in. *Never* share your PRIMARY_KEY or MNEMONIC with anyone (or check into a repo).
+Make sure .env has `PRIMARY_KEY` (or `MNEMONIC`) and `BASESCAN_API_KEY` values filled in.
 
 If `ignition/deployments/chain-84532` does not exist, run one of these two commands.
 
