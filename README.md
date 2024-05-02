@@ -86,8 +86,6 @@ add `PRIVATE_KEY` (default) or `MNEMONIC`. *Never* share your `PRIMARY_KEY` or `
 
 add `BASESCAN_API_KEY`
 
-
-
 ## Install Dependencies
 
 ```bash
@@ -122,7 +120,7 @@ npm run fmt
 
 Deploy to in-process instance of Hardhat Network, results will be lost.
 ```bash
-npm run deploy hardhat
+npm run protocol:deployandverify hardhat
 ```
 
 ## Deploy Contracts to Local node
@@ -133,45 +131,36 @@ npx hardhat node
 
 Start a new terminal and execute:
 ```bash
-npm run deploy localhost
+npm run protocol:deployandverify localhost
+```
+
+Execute:
+```bash
+npm run customtld:deployandverify localhost
 ```
 
 ## Deploy Contracts to Base Testnet
 
 Make sure .env has `PRIMARY_KEY` (or `MNEMONIC`) and `BASESCAN_API_KEY` values filled in.
 
-If `ignition/deployments/chain-84532` does not exist, run one of these two commands.
+If `ignition/deployments/chain-84532` does not exist, run this command.
+
+Update parameters under `SitusProtocolModule` in `ignition/parameters.json`.
 
 Start a new terminal and execute:
 ```bash
-npm run deployandverify baseTestnet
-```
-
-*OR* if you only want to deploy and not verify:
-```bash
-npm run deploy baseTestnet
+npm run protocol:deployandverify baseTestnet
 ```
 
 ## Clear Existing Deployment with Reset and Redeploy
 
-If `ignition/deployments/chain-84532` does exist, run one of these two commands to redeploy contracts.
+If `ignition/deployments/chain-84532` does exist, run this command.
+
+Update parameters under `SitusProtocolModule` in `ignition/parameters.json`.
 
 Start a new terminal and execute:
 ```bash
-npm run resetdeployandverify baseTestnet
-```
-
-*OR* if you only want to deploy and not verify:
-```bash
-npm run resetanddeploy baseTestnet
-```
-
-## Verify Contracts on Base Testnet
-
-If you have deployed but still need run verify for testnet chain:
-
-```bash
-npx hardhat ignition verify chain-84532
+npm run protocol:resetdeployandverify baseTestnet
 ```
 
 ## Verify Factory-generated Contracts on Base Testnet
@@ -186,6 +175,15 @@ Update `factoryAddress` and `metadataAddress` using the values in `deployed_addr
 npx hardhat run ignition/modules/archive/verify/manualTldVerification.js --network baseTestnet
 ```
 
+## Owner Create TLD for Base Testnet
+
+update custom TLD parameters under `SitusTLD` in `ignition/parameters.json`.
+
+Execute:
+```bash
+npm run customtld:deployandverify baseTestnet
+```
+
 ## Add Base Sepolia to Metamask
 
 - Name	Sepolia
@@ -196,6 +194,11 @@ npx hardhat run ignition/modules/archive/verify/manualTldVerification.js --netwo
 - Block Explorer	https://sepolia-explorer.base.org
 
 ## TODO
+- Add parameters.json  parameters/localhost.json
+- Add deployment_id
+- factory method for deployment
+- add multiple modules, one for ownerCreateTLD
+- Reference module in tests
 - Deploy to Base Mainnet
 - Point Frontend to Base Mainnet
 

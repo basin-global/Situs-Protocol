@@ -1,0 +1,30 @@
+{
+    "SitusTLDFactoryModule": {
+        "tldPrice": "900000n"
+    },
+    "SitusProtocolModule": {
+        "situsTldName": ".situs",
+        "situsTldSymbol": ".SITUS",
+        "situsPrice1char": "1n",
+        "situsPrice2char": "0.1n",
+        "situsPrice3char": "0.03n",
+        "situsPrice4char": "0.008n",
+        "situsPrice5char": "0.0002n",
+        "basinTldName": ".basin",
+        "basinTldSymbol": ".BASIN",
+        "basinPrice1char": "1n",
+        "basinPrice2char": "0.1n",
+        "basinPrice3char": "0.03n",
+        "basinPrice4char": "0.008n",
+        "basinPrice5char": "0.0002n"
+    },
+    "SitusTLD": {
+        "customTldName": ".demo",
+        "customTldSymbol": ".DEMO",
+        "customPrice1char": "1n",
+        "customPrice2char": "0.1n",
+        "customPrice3char": "0.03n",
+        "customPrice4char": "0.008n",
+        "customPrice5char": "0.0002n"
+    }
+}

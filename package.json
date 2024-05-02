@@ -10,10 +10,9 @@
   ],
   "scripts": {
     "build": "hardhat compile",
-    "resetanddeploy": "hardhat ignition deploy ./ignition/modules/SitusTLD.ts --reset --network",
-    "deploy": "hardhat ignition deploy ./ignition/modules/SitusTLD.ts --network",
-    "resetdeployandverify": "hardhat ignition deploy ./ignition/modules/SitusTLD.ts --reset --verify --network",
-    "deployandverify": "hardhat ignition deploy ./ignition/modules/SitusTLD.ts --verify --network",
+    "protocol:resetdeployandverify": "hardhat ignition deploy ./ignition/modules/SitusProtocol.ts --parameters ignition/parameters.json --reset --verify --network",
+    "protocol:deployandverify": "hardhat ignition deploy ./ignition/modules/SitusProtocol.ts --parameters ignition/parameters.json --verify --network",
+    "customtld:deployandverify": "hardhat ignition deploy ./ignition/modules/SitusTLD.ts --parameters ignition/parameters.json --verify --network",
     "test": "hardhat test",
     "lint": "npm run lint:sol && npm run lint:ts",
     "lint:sol": "solhint 'contracts/**/*.sol'",

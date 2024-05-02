@@ -208,7 +208,7 @@ describe("SitusTLDMinter", function () {
 
             // mint using the TLD contract directly without minter
             await expect(
-                    situsTLD.connect(user).mint(
+                situsTLD.connect(user).mint(
                     "third", // domain name (without TLD)
                     referrer.address, // domain owner
                     ethers.ZeroAddress, // no referrer in this case
@@ -219,8 +219,7 @@ describe("SitusTLDMinter", function () {
             ).to.be.revertedWithCustomError(situsTLD, "BuyingDisabled");
 
             // tldOwner mint directly without minter
-            await
-                situsTLD.connect(tldOwner).mint(
+            await situsTLD.connect(tldOwner).mint(
                 "fourth", // domain name (without TLD)
                 referrer.address, // domain owner
                 ethers.ZeroAddress, // no referrer in this case
