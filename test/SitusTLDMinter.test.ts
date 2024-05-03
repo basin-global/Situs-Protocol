@@ -2,7 +2,8 @@ import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
 import { ContractTransactionReceipt } from "ethers";
 import hre from "hardhat";
-import { ethers } from "hardhat";
+import { ethers, ignition } from "hardhat";
+import SitusProtocolModule from "../ignition/modules/SitusProtocol";
 
 function calculateGasCosts(testName: string, receipt: ContractTransactionReceipt | null) {
     if (!receipt) {
@@ -24,63 +25,47 @@ function calculateGasCosts(testName: string, receipt: ContractTransactionReceipt
 }
 
 describe("SitusTLDMinter", function () {
+    const tldPrice = ethers.parseUnits("1", "ether");
     const domainName = ".web3";
     const domainSymbol = "WEB3";
     // domain price must be zero when using Minter
     const domainPrice = ethers.parseUnits("0", "ether");
-    const domainRoyalty = 10; // royalty in bips (10 bips is 0.1%)
 
-    const price1char = ethers.parseUnits("1", "ether");
-    const price2char = ethers.parseUnits("0.1", "ether");
-    const price3char = ethers.parseUnits("0.03", "ether");
-    const price4char = ethers.parseUnits("0.008", "ether");
-    const price5char = ethers.parseUnits("0.0002", "ether");
+    const price1 = ethers.parseUnits("1", "ether");
+    const price2 = ethers.parseUnits("0.1", "ether");
+    const price3 = ethers.parseUnits("0.03", "ether");
+    const price4 = ethers.parseUnits("0.008", "ether");
+    const price5 = ethers.parseUnits("0.0002", "ether");
 
     // Fixture
     async function deploySitusTLDMinterFixture() {
-        const [admin, tldOwner, user, referrer] = await hre.ethers.getSigners();
+        const [tldOwner, user, referrer] = await hre.ethers.getSigners();
 
-        const SitusMetadataStore = await hre.ethers.getContractFactory("SitusMetadataStore");
-        const situsMetadataStore = await SitusMetadataStore.deploy();
-        const situsMetadataStoreAddress = await situsMetadataStore.getAddress();
+        const {
+            situsMetadataStore,
+            situsTLDContract: situsTLD,
+            situsTLDMinter,
+        } = await ignition.deploy(SitusProtocolModule, {
+            parameters: {
+                SitusTLDFactoryModule: {
+                    tldPrice: tldPrice,
+                },
+                SitusDefaultTLDModule: {
+                    situsTldName: domainName,
+                    situsTldSymbol: domainSymbol,
+                    situsDomainPrice: domainPrice,
+                    situsPrice1: price1,
+                    situsPrice2: price2,
+                    situsPrice3: price3,
+                    situsPrice4: price4,
+                    situsPrice5: price5,
+                    basinTldName: ".basin",
+                    basinTldSymbol: ".BASIN",
+                },
+            },
+        });
 
-        const SitusForbiddenTLDs = await hre.ethers.getContractFactory("SitusForbiddenTLDs");
-        const situsForbiddenTLDs = await SitusForbiddenTLDs.deploy();
-        const situsForbiddenTLDsAddress = await situsForbiddenTLDs.getAddress();
-
-        const SitusTLDFactory = await hre.ethers.getContractFactory("SitusTLDFactory");
-        const situsTLDMinterFactory = await SitusTLDFactory.deploy(domainPrice, situsForbiddenTLDsAddress, situsMetadataStoreAddress);
-        const situsTLDMinterFactoryAddress = await situsTLDMinterFactory.getAddress();
-
-        await situsForbiddenTLDs.addFactoryAddress(situsTLDMinterFactoryAddress);
-
-        const SitusTLD = await ethers.getContractFactory("SitusTLD");
-        const situsTLD = await SitusTLD.deploy(
-            domainName,
-            domainSymbol,
-            tldOwner.address, // TLD owner
-            domainPrice,
-            false, // buying enabled
-            domainRoyalty,
-            situsTLDMinterFactoryAddress,
-            situsMetadataStoreAddress,
-        );
-        const situsTLDAddress = await situsTLD.getAddress();
-
-        const SitusTLDMinter = await ethers.getContractFactory("SitusTLDMinter");
-        const situsTLDMinter = await SitusTLDMinter.connect(tldOwner).deploy(
-            situsTLDAddress,
-            price1char,
-            price2char,
-            price3char,
-            price4char,
-            price5char,
-        );
-        const situsTLDMinterAddress = await situsTLDMinter.getAddress();
-
-        await situsTLD.connect(tldOwner).changeMinter(situsTLDMinterAddress);
-
-        return { situsTLDMinter, situsTLD, situsMetadataStore, admin, tldOwner, user, referrer };
+        return { situsTLDMinter, situsTLD, situsMetadataStore, tldOwner, user, referrer };
     }
 
     describe("Deployment", function () {
@@ -109,7 +94,7 @@ describe("SitusTLDMinter", function () {
                 tldOwner.address, // domain owner
                 referrer.address, // referrer is set, so 0.1 ETH referral fee will go to referrers address
                 {
-                    value: price5char,
+                    value: price5,
                 },
             );
 
@@ -146,7 +131,7 @@ describe("SitusTLDMinter", function () {
                 referrer.address, // domain owner
                 ethers.ZeroAddress, // no referrer in this case
                 {
-                    value: price5char, // pay for the domain
+                    value: price5, // pay for the domain
                 },
             );
 
@@ -166,7 +151,7 @@ describe("SitusTLDMinter", function () {
                 user.address, // domain owner
                 ethers.ZeroAddress, // no referrer in this case
                 {
-                    value: price1char, // pay  for the domain
+                    value: price1, // pay  for the domain
                 },
             );
 
@@ -188,7 +173,7 @@ describe("SitusTLDMinter", function () {
                     user.address, // domain owner
                     referrer.address, // referrer is set, so 0.1 ETH referral fee will go to referrers address
                     {
-                        value: price1char, // pay  for the domain
+                        value: price1, // pay  for the domain
                     },
                 ),
             ).to.be.revertedWithCustomError(situsTLD, "Empty");
@@ -201,7 +186,7 @@ describe("SitusTLDMinter", function () {
                     user.address, // domain owner
                     referrer.address, // referrer is set, so 0.1 ETH referral fee will go to referrers address
                     {
-                        value: price2char, // pay  for the domain
+                        value: price2, // pay  for the domain
                     },
                 ),
             ).to.be.revertedWithCustomError(situsTLD, "ValueBelowPrice");
