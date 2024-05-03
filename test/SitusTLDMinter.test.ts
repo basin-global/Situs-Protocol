@@ -50,7 +50,7 @@ describe("SitusTLDMinter", function () {
                 SitusTLDFactoryModule: {
                     tldPrice: tldPrice,
                 },
-                SitusDefaultTLDModule: {
+                SitusProtocolModule: {
                     situsTldName: domainName,
                     situsTldSymbol: domainSymbol,
                     situsDomainPrice: domainPrice,
