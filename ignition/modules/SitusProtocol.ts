@@ -1,6 +1,9 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 import { parseUnits } from "ethers";
 
+
+// Deploys all the contracts for the protocol, including .situs and .basin
+
 // Default Values
 const TLDPRICE = parseUnits("900000", "wei");
 const TLDDOMAINPRICE = 0; //must be zero when using a minter
@@ -30,21 +33,22 @@ const SitusTLDFactoryModule = buildModule("SitusTLDFactoryModule", (m) => {
 });
 
 const SitusProtocolModule = buildModule("SitusProtocolModule", (m) => {
-
+  
   const createTLD = (namePrefix: string) => {
     const tldName = m.getParameter(`${namePrefix}TldName`, ".demo");
-    const tldSymbol = m.getParameter(`${namePrefix}TldName`, ".DEMO");
-    const price1 = m.getParameter(`${namePrefix}Price1char`, PRICE1);
-    const price2 = m.getParameter(`${namePrefix}Price2char`, PRICE2);
-    const price3 = m.getParameter(`${namePrefix}Price3char`, PRICE3);
-    const price4 = m.getParameter(`${namePrefix}Price4char`, PRICE4);
-    const price5 = m.getParameter(`${namePrefix}Price5char`, PRICE5);
+    const tldSymbol = m.getParameter(`${namePrefix}TldSymbol`, ".DEMO");
+    const tldDomainPrice = m.getParameter(`${namePrefix}DomainPrice`, TLDDOMAINPRICE);
+    const price1 = m.getParameter(`${namePrefix}Price1`, PRICE1);
+    const price2 = m.getParameter(`${namePrefix}Price2`, PRICE2);
+    const price3 = m.getParameter(`${namePrefix}Price3`, PRICE3);
+    const price4 = m.getParameter(`${namePrefix}Price4`, PRICE4);
+    const price5 = m.getParameter(`${namePrefix}Price5`, PRICE5);
 
     const callNewTLD = m.call(situsTLDFactory, "ownerCreateTld", [
       tldName,
       tldSymbol,
       deployer,
-      TLDDOMAINPRICE,
+      tldDomainPrice,
       TLDBUYINGENABLED,
     ], { id: namePrefix });
     const tldAddress = m.readEventArgument(callNewTLD, "TldCreated", "tldAddress", {id: namePrefix + "TldAddress" });

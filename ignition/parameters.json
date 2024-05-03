@@ -5,26 +5,32 @@
     "SitusProtocolModule": {
         "situsTldName": ".situs",
         "situsTldSymbol": ".SITUS",
-        "situsPrice1char": "1000000000000000000n",
-        "situsPrice2char": "100000000000000000n",
-        "situsPrice3char": "30000000000000000n",
-        "situsPrice4char": "8000000000000000n",
-        "situsPrice5char": "200000000000000n",
+        "situsPrice1": "1000000000000000000n",
+        "situsPrice2": "100000000000000000n",
+        "situsPrice3": "30000000000000000n",
+        "situsPrice4": "8000000000000000n",
+        "situsPrice5": "200000000000000n",
         "basinTldName": ".basin",
         "basinTldSymbol": ".BASIN",
-        "basinPrice1char": "1000000000000000000n",
-        "basinPrice2char": "100000000000000000n",
-        "basinPrice3char": "30000000000000000n",
-        "basinPrice4char": "8000000000000000n",
-        "basinPrice5char": "200000000000000n"
+        "basinPrice1": "1000000000000000000n",
+        "basinPrice2": "100000000000000000n",
+        "basinPrice3": "30000000000000000n",
+        "basinPrice4": "8000000000000000n",
+        "basinPrice5": "200000000000000n"
+    },
+    "SitusTLDMinterModule": {
+        "customTldName": ".demo",
+        "customTldSymbol": ".DEMO",
+        "customPrice1": "1000000000000000000n",
+        "customPrice2": "100000000000000000n",
+        "customPrice3": "30000000000000000n",
+        "customPrice4": "8000000000000000n",
+        "customPrice5": "200000000000000n"
     },
     "SitusTLDModule": {
         "customTldName": ".demo",
         "customTldSymbol": ".DEMO",
-        "customPrice1char": "1000000000000000000n",
-        "customPrice2char": "100000000000000000n",
-        "customPrice3char": "30000000000000000n",
-        "customPrice4char": "8000000000000000n",
-        "customPrice5char": "200000000000000n"
+        "customDomainPrice": "1000000000000000000n",
+        "customBuyingEnabled": false
     }
 }
