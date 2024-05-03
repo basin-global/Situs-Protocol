@@ -194,10 +194,6 @@ npm run customtld:deployandverify baseTestnet
 - Block Explorer	https://sepolia-explorer.base.org
 
 ## TODO
-- Add parameters.json  parameters/localhost.json
-- Add deployment_id
-- factory method for deployment
-- add multiple modules, one for ownerCreateTLD
 - Reference module in tests
 - Deploy to Base Mainnet
 - Point Frontend to Base Mainnet

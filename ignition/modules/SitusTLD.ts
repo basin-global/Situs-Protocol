@@ -3,36 +3,32 @@ import { parseUnits } from "ethers";
 import SitusTLDFactoryModule from "./SitusProtocol";
 
 // Default Values
-const PRICE1CHAR = "1";
-const PRICE2CHAR = "0.1";
-const PRICE3CHAR = "0.03";
-const PRICE4CHAR = "0.008";
-const PRICE5CHAR = "0.0002";
+const TLDDOMAINPRICE = 0; // must be zero when using a minter
+const TLDBUYINGENABLED = false; // must be false when using a minter
+const PRICE1 = parseUnits("1000000000000000000", "wei");
+const PRICE2 = parseUnits("100000000000000000", "wei");
+const PRICE3 = parseUnits("30000000000000000", "wei");
+const PRICE4 = parseUnits("8000000000000000", "wei");
+const PRICE5 = parseUnits("200000000000000", "wei");
 
 const SitusTLDModule = buildModule("SitusTLDModule", (m) => {
     const { situsTLDFactory } = m.useModule(SitusTLDFactoryModule);
     const deployer = m.getAccount(0);
   
-    const customTldName = m.getParameter("customTldName", ".demo");
-    const customTldSymbol = m.getParameter("customTldName", ".DEMO");
-    const customTldDomainPrice = 0;
-    const customPrice1char = m.getParameter("customPrice1char", PRICE1CHAR);
-    const customPrice2char = m.getParameter("customPrice2char", PRICE2CHAR);
-    const customPrice3char = m.getParameter("customPrice3char", PRICE3CHAR);
-    const customPrice4char = m.getParameter("customPrice4char", PRICE4CHAR);
-    const customPrice5char = m.getParameter("customPrice5char", PRICE5CHAR);
-    const customPrice1 = parseUnits(customPrice1char.defaultValue || PRICE1CHAR, "ether");
-    const customPrice2 = parseUnits(customPrice2char.defaultValue || PRICE2CHAR,  "ether");
-    const customPrice3 = parseUnits(customPrice3char.defaultValue || PRICE3CHAR,  "ether");
-    const customPrice4 = parseUnits(customPrice4char.defaultValue || PRICE4CHAR,  "ether");
-    const customPrice5 = parseUnits(customPrice5char.defaultValue || PRICE5CHAR,  "ether");
+    const customTldName = m.getParameter("customTldName", ".empty");
+    const customTldSymbol = m.getParameter("customTldName", ".EMPTY");
+    const customPrice1 = m.getParameter("customPrice1char", PRICE1);
+    const customPrice2 = m.getParameter("customPrice2char", PRICE2);
+    const customPrice3 = m.getParameter("customPrice3char", PRICE3);
+    const customPrice4 = m.getParameter("customPrice4char", PRICE4);
+    const customPrice5 = m.getParameter("customPrice5char", PRICE5);
   
     const callNewTLDSitus = m.call(situsTLDFactory, "ownerCreateTld", [
       customTldName,
       customTldSymbol,
       deployer,
-      customTldDomainPrice,
-      false, // buying enabled
+      TLDDOMAINPRICE,
+      TLDBUYINGENABLED
     ]);
     const situsTLDAddress = m.readEventArgument(
       callNewTLDSitus,
