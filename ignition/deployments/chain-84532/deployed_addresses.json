@@ -1,10 +1,10 @@
 {
-  "SitusTLDModule#SitusForbiddenTLDs": "0x28C1c881912C15b016b53443D3882E5f8cf2804E",
-  "SitusTLDModule#SitusMetadataStore": "0x7a6fed2f25623b8C8115F8FAE38aCc0ADA8D0316",
-  "SitusTLDModule#SitusResolverNonUpgradable": "0xCCeA06e3c179D8d6C2C1924792e581a19Fc5Ec5b",
-  "SitusTLDModule#SitusTLDFactory": "0x5F9105eB7E5aC3bdB8353835d252C15D4b8e0F6A",
-  "SitusTLDModule#BasinTLD": "0x6698E22E15fe5f1AADCE26281e8eDB9b05a9C5B5",
-  "SitusTLDModule#SitusTLD": "0xe44E9E2395B471624002E1473cd68FEaEc75BA8e",
-  "SitusTLDModule#BasinTLDMinter": "0xC612FD16A6391e08fe576Ef9987B9Fb4E735e7C4",
-  "SitusTLDModule#SitusTLDMinter": "0x4F0B9758D3dcD5Ba25816621771e33457AD569FF"
+  "SitusTLDFactoryModule#SitusForbiddenTLDs": "0x35841253AdD038d9Bc149Fb0AA148B13892fb42b",
+  "SitusTLDFactoryModule#SitusMetadataStore": "0x3dDF707d232131161A8AAAD3Cb44d1E26639B0f0",
+  "SitusTLDFactoryModule#SitusResolverNonUpgradable": "0x607D7954d0F2e022BeDDc11Fe348351598E0E4f2",
+  "SitusTLDFactoryModule#SitusTLDFactory": "0xD59494665D6091A1c755Cf3A75fdA9Da8de83C93",
+  "SitusProtocolModule#basinTldContract": "0x1553882E9fD59B8C4De9f2b71971BF6B1f766961",
+  "SitusProtocolModule#situsTldContract": "0x20D1491A0b08f8bF3ceC9083158813B66f6A0aee",
+  "SitusProtocolModule#basinMinter": "0x88d6B0e350Bd958c9a57Ff1Cd0544f5a38c5203a",
+  "SitusProtocolModule#situsMinter": "0x27E2e32054EE4bdA63c8d9ae5E4882e39Cb793F7"
 }

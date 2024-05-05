@@ -5,8 +5,8 @@
   "homepage": "https://github.com/basin-global/dot_basin_base_contracts/",
   "license": "LGPL-3.0",
   "files": [
-      "contracts",
-      "test"
+    "contracts",
+    "test"
   ],
   "scripts": {
     "build": "hardhat compile",
@@ -23,7 +23,6 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "@openzeppelin/contracts": "4.4.1",
     "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@typescript-eslint/parser": "^7.4.0",
     "base64-sol": "1.0.1",
@@ -36,5 +35,8 @@
     "prettier": "^3.2.5",
     "prettier-plugin-solidity": "^1.3.1",
     "solhint": "^4.5.2"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.4.1"
   }
 }
