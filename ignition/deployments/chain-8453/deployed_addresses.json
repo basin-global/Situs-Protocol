@@ -1,0 +1,10 @@
+{
+  "SitusTLDFactoryModule#SitusForbiddenTLDs": "0xE54757Da49ff5C4814484aAf7507C03f8BDaBFf8",
+  "SitusTLDFactoryModule#SitusMetadataStore": "0x780A9a92BA66a29d942bdb289DB455F8e3ED0dFa",
+  "SitusTLDFactoryModule#SitusResolverNonUpgradable": "0x30EF3151Ca370562F25ea6F3611fEFD70B5a93df",
+  "SitusTLDFactoryModule#SitusTLDFactory": "0x67c814835E1920324634Fd6da416a0E79c949970",
+  "SitusProtocolModule#basinTldContract": "0x76AC406218413950DB2b050f7C3449AB5E24AABc",
+  "SitusProtocolModule#situsTldContract": "0xcFD18A8eD73087C8c6ABbf6edcdB30aD2fa0FEc7",
+  "SitusProtocolModule#basinMinter": "0x62102E13Fe2Ed33073CeCb4d63D98D0E13c5FA7d",
+  "SitusProtocolModule#situsMinter": "0x68aDe8aa1C6bA8E60d354A8CbBfd7b8C0a65a5C2"
+}
