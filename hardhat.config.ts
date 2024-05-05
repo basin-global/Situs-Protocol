@@ -32,7 +32,7 @@ const config: HardhatUserConfig = {
         ...sharedNetworkConfig,
         url: 'https://mainnet.base.org', // https://base-mainnet.public.blastapi.io
         chainId: 8453,
-        // gas: "auto", // gas limit
+        gas: "auto", // gas limit
         gasPrice: 1000000000, // 1 gwei
       },
       baseTestnet: {
