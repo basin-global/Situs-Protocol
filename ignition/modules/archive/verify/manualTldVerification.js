@@ -1,7 +1,7 @@
-// Run: npx hardhat run ignition/modules/archive/verify/manualTldVerification.js --network baseTestnet
+// Run: npx hardhat run ignition/modules/archive/verify/manualTldVerification.js --network baseTestnet & base
 
-const tldAddressSitus = "0xe44E9E2395B471624002E1473cd68FEaEc75BA8e";
-const tldAddressBasin = "0x6698E22E15fe5f1AADCE26281e8eDB9b05a9C5B5";
+const tldAddressSitus = "0xcFD18A8eD73087C8c6ABbf6edcdB30aD2fa0FEc7";
+const tldAddressBasin = "0x76AC406218413950DB2b050f7C3449AB5E24AABc";
 
 async function main() {
   console.log("Copy the two lines below and paste it in your terminal to verify the TLD contracts on Etherscan:");
