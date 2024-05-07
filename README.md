@@ -163,16 +163,16 @@ Start a new terminal and execute:
 npm run protocol:resetdeployandverify baseTestnet
 ```
 
-## Verify Factory-generated Contracts on Base Testnet
+## Verify Factory-generated Contracts on Base Testnet or Base
 
 Verify SitusTLD and BasinTLD separately since they were created by the factory using the following steps:
 
-Update `tldAddressSitus` and `tldAddressBasin` using the values in `deployed_addresses.json` for the network in `ignition/modules/archive/verify/manualTldVerification.js`.
+Update `deployer`, and `tldAddressSitus` and `tldAddressBasin` using the values in `deployed_addresses.json` for the network in `ignition/modules/archive/verify/manualTldVerification.js`.
 
 Update `factoryAddress` and `metadataAddress` using the values in `deployed_addresses.json` for the network in `ignition/modules/archive/verify/argumentsSitus.js` and `ignition/modules/archive/verify/argumentsBasin.js`
 
 ```bash
-npx hardhat run ignition/modules/archive/verify/manualTldVerification.js --network baseTestnet
+npx hardhat run ignition/modules/archive/verify/manualTldVerification.js --network base // (or baseTestnet)
 ```
 
 ## Owner Create TLD for Base Testnet
