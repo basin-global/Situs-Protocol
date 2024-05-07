@@ -1,6 +1,6 @@
 const basinTldName = ".basin";
 const basinTldSymbol = ".BASIN";
-const deployer = "0x5A4afc30b7D6090DC9911Aa3355979d4C96Cd72E";
+const deployer = "0xcb598dD4770b06E744EbF5B31Bb3D6a538FBE4fE";
 const basinTldDomainPrice = "0";
 const basinRoyalty = "0";
 const factoryAddress = "0x67c814835E1920324634Fd6da416a0E79c949970";
