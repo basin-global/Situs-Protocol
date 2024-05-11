@@ -20,7 +20,7 @@ The script `getAccountData.js` connects to an Ethereum blockchain via a Web3 pro
 3. Install the required npm packages:
 
    ```bash
-   npm install web3 @tokenbound/sdk fs
+   npm install web3 @tokenbound/sdk
 
 ## Configuration
 Before running the script, update the following placeholders in the getAccountData.js file:
