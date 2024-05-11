@@ -30,6 +30,8 @@ Before running the script, update the following placeholders in the getAccountDa
 - `contractAddress`: The address of your NFT contract.
 - `contractABI`: The ABI of your NFT contract. Ensure it includes all necessary functions.
 
+NOTE: this version does not have handling for burned tokens (non-existing) but that can easily be added to script if you encounter an error
+
 ## Usage
 To run the script, use the following command in your terminal:
 
