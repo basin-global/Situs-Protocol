@@ -25,16 +25,17 @@ The script `getAccountData.js` connects to an Ethereum blockchain via a Web3 pro
 ## Configuration
 Before running the script, update the following placeholders in the getAccountData.js file:
 
-`rpcUrl`: Your Alchemy or other blockchain service providers API URL.
-`chainId`: The chain ID of the Ethereum network your contract is deployed on.
-`contractAddress`: The address of your NFT contract.
-`contractABI`: The ABI of your NFT contract. Ensure it includes all necessary functions.
+- `rpcUrl`: Your Alchemy or other blockchain service providers API URL.
+- `chainId`: The chain ID of the Ethereum network your contract is deployed on.
+- `contractAddress`: The address of your NFT contract.
+- `contractABI`: The ABI of your NFT contract. Ensure it includes all necessary functions.
 
 ## Usage
 To run the script, use the following command in your terminal:
 
 ```bash
 node getAccountData.js
+```
 
 The script will output the data to AccountDataResults.json, which will contain an array of objects with details about each token.
 
