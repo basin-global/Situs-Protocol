@@ -1,0 +1,135 @@
+const Web3 = require('web3');
+const fs = require('fs');
+const keccak256 = require('keccak256');
+const { toChecksumAddress } = require('ethereumjs-util');
+const { TokenboundClient } = require('@tokenbound/sdk');
+
+const rpcUrl = "https://polygon-mainnet.g.alchemy.com/v2/<enter-your-api-key>";
+const web3 = new Web3(rpcUrl);
+const chainId = 137;
+const contractAddress = '0x4bf5a99ea2f8de061f7d77ba9edd749503d945da';
+
+const contractABI = [
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "totalSupply",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [{"name": "tokenId", "type": "uint256"}],
+        "name": "ownerOf",
+        "outputs": [{"name": "", "type": "address"}],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [{"name": "tokenId", "type": "uint256"}],
+        "name": "domainIdsNames",
+        "outputs": [{"name": "", "type": "string"}],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
+
+const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+async function fetchContractBytecode(address) {
+    try {
+        const bytecode = await web3.eth.getCode(address);
+        return bytecode;
+    } catch (error) {
+        console.error(`Error fetching bytecode: ${error.message}`);
+        return null;
+    }
+}
+
+function computeCreate2Address(creatorAddress, salt, initCodeHash) {
+    return toChecksumAddress(
+        '0x' + keccak256(Buffer.concat([
+            Buffer.from('ff', 'hex'),
+            Buffer.from(creatorAddress.slice(2), 'hex'),
+            Buffer.from(salt.slice(2), 'hex'),
+            Buffer.from(initCodeHash.slice(2), 'hex')
+        ])).toString('hex').slice(-40) // Take the last 20 bytes
+    );
+}
+
+async function fetchTokenData(tokenId, contract, tokenboundClient, initCode) {
+    try {
+        const owner = await contract.methods.ownerOf(tokenId).call();
+
+        // Compute TBA Address using the TokenboundClient
+        const params = { tokenContract: contractAddress, tokenId: tokenId.toString(), chainId };
+        const computedTBAAddress = await tokenboundClient.getAccount(params);
+
+        // Manually compute TBA Address using CREATE2
+        const salt = web3.utils.padLeft(web3.utils.toHex(tokenId), 64);
+        const initCodeHash = keccak256(Buffer.from(initCode.slice(2), 'hex')).toString('hex');
+        const manualComputedTBAAddress = computeCreate2Address(contractAddress, salt, initCodeHash);
+
+        // Check if the owner is an EOA, Contract, or TBA
+        let accountType = 'EOA';
+        if (owner.toLowerCase() === computedTBAAddress.toLowerCase() && owner.toLowerCase() === manualComputedTBAAddress.toLowerCase()) {
+            accountType = 'Is TBA';
+        } else {
+            const code = await web3.eth.getCode(owner);
+            if (code !== '0x') {
+                accountType = 'Contract';
+            }
+        }
+
+        const name = await contract.methods.domainIdsNames(tokenId).call();
+        return {
+            tokenID: tokenId,
+            owner: owner,
+            accountType: accountType,
+            name: name,
+            TBAccount: computedTBAAddress
+        };
+    } catch (error) {
+        if (error.message.includes("execution reverted: ERC721: owner query for nonexistent token")) {
+            console.warn(`Token ID ${tokenId} does not exist. Skipping...`);
+            return null;
+        } else {
+            console.error(`Error fetching data for token ID ${tokenId}: ${error.message}`);
+            return null;
+        }
+    }
+}
+
+async function fetchNFTData() {
+    try {
+        const totalSupply = parseInt(await contract.methods.totalSupply().call());
+        const accounts = await web3.eth.getAccounts();
+        const tokenboundClient = new TokenboundClient({ signer: accounts[0], chainId });
+
+        const initCode = await fetchContractBytecode(contractAddress);
+        if (!initCode) {
+            console.error('Failed to fetch contract init code');
+            return;
+        }
+
+        const nftData = [];
+        for (let tokenId = 1; tokenId <= totalSupply; tokenId++) {
+            const tokenData = await fetchTokenData(tokenId, contract, tokenboundClient, initCode);
+            if (tokenData) {
+                nftData.push(tokenData);
+            }
+        }
+
+        fs.writeFileSync('AccountDataResults.json', JSON.stringify(nftData, null, 2));
+        console.log('Data has been written to AccountDataResults.json');
+    } catch (error) {
+        console.error(`Error fetching total supply: ${error.message}`);
+    }
+}
+
+fetchNFTData().catch(console.error);
