@@ -4,6 +4,9 @@ This repository contains a custom metadata contract designed for the Situs Proto
 
 **Note:** This contract is also compatible with Punk Domains TLD's, although it has not yet been tested with them.
 
+# Example
+.boulder onchain account [onchain image](https://raw.seadn.io/files/b854d1dd5f89f5154db77692adfaf9c5.svg)
+
 # Installation
 
 To install the necessary dependencies, run the following command in your terminal:
