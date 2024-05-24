@@ -8,8 +8,7 @@ This repository contains a custom metadata contract designed for the Situs Proto
 
 To install the necessary dependencies, run the following command in your terminal:
 
-```bash
-npm install
+      npm install
 
 ## SVG Storage
 The system employs a secondary Solidity file (*.sol) to store images. Specifically, it handles JPG images converted into a Base64 string. Ensure that the Base64 string is less than approximately 25kb to compile and deploy successfully.
@@ -25,7 +24,4 @@ Fill in your private information in the newly created .env file.
 You may need to modify the interface to suit the specific requirements of your deployment or to integrate additional features.
 
 # License
-This project is licensed under the GNU General Public License v3.0. Please see the LICENSE file in this repository for more information.
-
-License
 This project is licensed under the GNU General Public License v3.0. Please see the LICENSE file in this repository for more information.
